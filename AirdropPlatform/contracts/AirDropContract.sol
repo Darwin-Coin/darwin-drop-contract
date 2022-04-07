@@ -82,7 +82,7 @@ contract NotCryptoAirDrop is Initializable, OwnableUpgradeable {
         return true;
     }
 
-    function airDropTokens(address[] memory _recipient, address tokenAdress, uint256 amount) public {
+    function airDropTokens(address[] memory _recipient, address tokenAdress, uint256 amount) public returns (bool) {
         for (uint256 i = 0; i < _recipient.length; i++) {
             require(airdropTokenAdmin[tokenAdress] == msg.sender, "Only token Owner can allocate the tokens");
             require(addressToAirDrop[tokenAdress] != _recipient[i], "User Has Already Gotten this Drop!");
@@ -91,6 +91,8 @@ contract NotCryptoAirDrop is Initializable, OwnableUpgradeable {
 
             emit TokenClaimed(_recipient[i], tokenAdress);
         }
+
+        return true;
     }
 
     function setPrice(uint256 _price) public {

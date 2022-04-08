@@ -1,4 +1,4 @@
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.3;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
@@ -8,13 +8,14 @@ import "./AirDrop.sol";
 
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 
-import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
+
+
+import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 
 
 
 
-
-contract NotCryptoAirDrop is Initializable, OwnableUpgradeable {
+contract NotCryptoAirDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
 
     using SafeMathUpgradeable for uint256;
     using AddressUpgradeable for address;
@@ -24,7 +25,7 @@ contract NotCryptoAirDrop is Initializable, OwnableUpgradeable {
     address public notCryptoAddress;
 
     struct AirDropToken {
-        bytes32 coinName;
+        string coinName;
         address contractAddress;
         uint256 amount;
     }
@@ -45,15 +46,13 @@ contract NotCryptoAirDrop is Initializable, OwnableUpgradeable {
     
     event TokenClaimed(address indexed claimer, address indexed contractAddress);
     
-
     function initialize(address _notCrypto) public initializer {
         notCryptoAddress = _notCrypto;
         price = 0.1 ether;
-    }
-
-
+    }  
     //creates AirDropToken
-    function createAirDropToken(uint256 amount, address contractAddress, bytes32 coinName) public payable returns (bool) {
+    function createAirDropToken(uint256 amount, address contractAddress, string memory coinName) public payable 
+    returns (bool) {
         
         
         require(

@@ -19,39 +19,120 @@ contract NotCryptoAirDrop is Initializable, ContextUpgradeable, OwnableUpgradeab
 
     using SafeMathUpgradeable for uint256;
     using AddressUpgradeable for address;
+
+
+    enum AirDropType {
+        PASSWORD_PROTECTED,
+        STANDARD
+    }
     
     uint public price;
+
+    uint public airDropId = 0;
 
     address public notCryptoAddress;
 
     struct AirDropToken {
-        string coinName;
         address contractAddress;
         uint256 amount;
+        AirDropType airDroptype;
+        uint id;
     }
 
-       //checks whether specific airdop has been administered to the user
-    mapping (address => address) public addressToAirDrop;
+    modifier onlyNotCrypto {
+        require(msg.sender == notCryptoAddress, "Only NotContract Authorized can change the Address");
+      
+    }
 
-    //checks Token against Contract Address
-    mapping (address => AirDropToken) public airDropToken;
+    modifier onlyAdmin (address _sender) {
 
-    // Lists admin of a token
-    mapping (address => address) public airdropTokenAdmin;
+    }
 
-    
+    //checks whether specific airdop has been administered to the user
+    mapping (uint => address) public addressToAirDrop;
 
-    event AirDropTokenCreated(AirDropToken token, address indexed creatorAddress, address indexed contractAddress);
+    //checks Token against Id
+    mapping (uint => address) public airDropToken;
 
+    // Lists admin of an AirDrop
+    mapping (uint => address) public airdropTokenAdmin;
+
+    mapping (uint => address) public cancelledAirDrop;
+
+    mapping (uint => AirDropToken) public airDropObject;
+
+    event AirDropTokenCreated(AirDropToken token, address indexed creatorAddress, 
+    address indexed contractAddress, uint tokenId);
     
     event TokenClaimed(address indexed claimer, address indexed contractAddress);
     
+    event TokenCancelled(uint id, address tokenAddress);
+
     function initialize(address _notCrypto) public initializer {
+
+        __Context_init_unchained();
+        __Ownable_init_unchained();
+        _NotCryptoAirDrop_init_unchained();
+        
+    } 
+    
+    function _NotCryptoAirDrop_init_unchained(address _notCrypto) private initializer {
         notCryptoAddress = _notCrypto;
         price = 0.1 ether;
-    }  
+    }
     //creates AirDropToken
-    function createAirDropToken(uint256 amount, address contractAddress, string memory coinName) public payable 
+   
+    function airDropTokens(address[] memory _recipient, address tokenAdress, uint256 amount, uint _id) public returns (bool) {
+        
+        require(airdropTokenAdmin[airDropId++] == msg.sender, "Only token Owner can allocate the tokens");
+         
+        require (cancelledAirDrop[_id] != tokenAddress, "AirDrop Has Been Cancelled");
+
+        AirDropToken memory drop = airDropObject[_id];
+
+        if (drop.airDroptype = AirDropType.STANDARD) {
+            for (uint256 i = 0; i < _recipient.length; i++) {
+                require(addressToAirDrop[tokenAdress] != _recipient[i], "User Has Already Gotten this Drop!");
+
+                AirDrop(tokenAdress).transfer(_recipient[i], amount);
+
+                emit TokenClaimed(_recipient[i], tokenAdress);
+            } 
+        }
+        else if (drop.airDropType == AirDropType.PASSWORD_PROTECTED) {
+
+            }
+        
+
+        
+
+        return true;
+    }
+
+    function cancelAirDrop(uint id, address tokenAddress) public {
+        
+        require(msg.sender == airdropTokenAdmin[tokenAdress]);
+
+
+        cancelledAirDrop[_id] = tokenAddress;
+
+        emit TokenCancelled(id, tokenAddress);
+
+    }
+
+    function setPrice(uint256 _price) public onlyNotCrypto {
+
+         price = _price;
+    }
+    function setNotCryptoAddress (address _notCryptoAddress) public onlyNotCrypto {
+        notCryptoAddress = _notCryptoAddress;
+    }
+
+
+    function getAirDropDetails (uint256 _id) public view returns (AirDropToken) {
+        return airDropObject[_id];
+    }
+    function createAirDropToken(uint256 amount, address contractAddress, AirDropType _type) public payable 
     returns (bool) {
         
         
@@ -62,49 +143,27 @@ contract NotCryptoAirDrop is Initializable, ContextUpgradeable, OwnableUpgradeab
 
 
         require(msg.value >= price, "Not enough Paid to List Token");
-        
-        
-        airdropTokenAdmin[contractAddress] = msg.sender;
+       
+        payable(contractAddress).transfer(amount);
+                
+        airdropTokenAdmin[airDropId++] = msg.sender;
         
         AirDropToken memory airDrop = AirDropToken(
-                coinName,
                 contractAddress,
-                amount
-
+                amount,
+                airDropId++,
+                _type
         );
 
-        airDropToken[contractAddress] = airDrop;
+        airDropToken[airDropId++] = contactAddress;
 
-        emit AirDropTokenCreated (airDropToken[contractAddress], msg.sender, contractAddress);
+
+        airDropObject[airDropId++] = airDrop;
+
+        emit AirDropTokenCreated (airDrop, msg.sender, contractAddress);
         
 
         return true;
-    }
-
-    function airDropTokens(address[] memory _recipient, address tokenAdress, uint256 amount) public returns (bool) {
-        for (uint256 i = 0; i < _recipient.length; i++) {
-            require(airdropTokenAdmin[tokenAdress] == msg.sender, "Only token Owner can allocate the tokens");
-            require(addressToAirDrop[tokenAdress] != _recipient[i], "User Has Already Gotten this Drop!");
-
-            AirDrop(tokenAdress).transfer(_recipient[i], amount);
-
-            emit TokenClaimed(_recipient[i], tokenAdress);
-        }
-
-        return true;
-    }
-
-    function setPrice(uint256 _price) public {
-
-        require(msg.sender == notCryptoAddress, "Only NotContract Authorized can set the Price");
-        price = _price;
-    }
-
-
-    function setNotCryptoAddress (address _notCryptoAddress) public {
-        require(msg.sender == notCryptoAddress, "Only NotContract Authorized can change the Address");
-      
-        notCryptoAddress = _notCryptoAddress;
     }
     
 }

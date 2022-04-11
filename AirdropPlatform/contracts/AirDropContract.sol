@@ -20,10 +20,10 @@ contract NotCryptoAirDrop is Initializable, ContextUpgradeable, OwnableUpgradeab
     using SafeMathUpgradeable for uint256;
     using AddressUpgradeable for address;
 
-
     enum AirDropType {
-        PASSWORD_PROTECTED,
-        STANDARD
+        LOTTERY,
+        USER_LIMITED,
+        TOKEN_LIMITED
     }
     
     uint public price;
@@ -44,8 +44,8 @@ contract NotCryptoAirDrop is Initializable, ContextUpgradeable, OwnableUpgradeab
       
     }
 
-    modifier onlyAdmin (address _sender) {
-
+    modifier onlyAdmin (uint _id) {
+        require(airdropTokenAdmin[_id] == msg.sender);
     }
 
     //checks whether specific airdop has been administered to the user
@@ -90,7 +90,7 @@ contract NotCryptoAirDrop is Initializable, ContextUpgradeable, OwnableUpgradeab
 
         AirDropToken memory drop = airDropObject[_id];
 
-        if (drop.airDroptype = AirDropType.STANDARD) {
+        if (drop.airDroptype = AirDropType.LOTTERY) {
             for (uint256 i = 0; i < _recipient.length; i++) {
                 require(addressToAirDrop[tokenAdress] != _recipient[i], "User Has Already Gotten this Drop!");
 
@@ -99,9 +99,12 @@ contract NotCryptoAirDrop is Initializable, ContextUpgradeable, OwnableUpgradeab
                 emit TokenClaimed(_recipient[i], tokenAdress);
             } 
         }
-        else if (drop.airDropType == AirDropType.PASSWORD_PROTECTED) {
+        else if (drop.airDropType == AirDropType.USER_LIMITED) {
 
-            }
+        } 
+        else if (drop.airDropType == AirDropTpre == AirDropYpe.TOKEN_LIMITED) {
+
+        }
         
 
         

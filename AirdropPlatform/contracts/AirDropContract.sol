@@ -35,17 +35,25 @@ contract NotCryptoAirDrop is Initializable, ContextUpgradeable, OwnableUpgradeab
     struct AirDropToken {
         address contractAddress;
         uint256 amount;
-        AirDropType airDroptype;
+        AirDropType airDropType;
+        uint startTime;
+        uint endTime;
         uint id;
+        uint maxNumber;
+        address requirementAddress;
+        uint256 minimumAmount;
     }
 
     modifier onlyNotCrypto {
         require(msg.sender == notCryptoAddress, "Only NotContract Authorized can change the Address");
       
+         _;
     }
 
     modifier onlyAdmin (uint _id) {
         require(airdropTokenAdmin[_id] == msg.sender);
+
+         _;
     }
 
     //checks whether specific airdop has been administered to the user
@@ -72,7 +80,7 @@ contract NotCryptoAirDrop is Initializable, ContextUpgradeable, OwnableUpgradeab
 
         __Context_init_unchained();
         __Ownable_init_unchained();
-        _NotCryptoAirDrop_init_unchained();
+        _NotCryptoAirDrop_init_unchained(_notCrypto);
         
     } 
     
@@ -82,42 +90,54 @@ contract NotCryptoAirDrop is Initializable, ContextUpgradeable, OwnableUpgradeab
     }
     //creates AirDropToken
    
-    function airDropTokens(address[] memory _recipient, address tokenAdress, uint256 amount, uint _id) public returns (bool) {
+    function airDropTokens(address[] memory _recipient, address tokenAddress, uint _id) public
+    onlyNotCrypto
+    onlyAdmin(_id)
+    returns (bool) {
         
-        require(airdropTokenAdmin[airDropId++] == msg.sender, "Only token Owner can allocate the tokens");
-         
-        require (cancelledAirDrop[_id] != tokenAddress, "AirDrop Has Been Cancelled");
+        require(cancelledAirDrop[_id] != tokenAddress, "AirDrop Has Been Cancelled");
 
         AirDropToken memory drop = airDropObject[_id];
 
-        if (drop.airDroptype = AirDropType.LOTTERY) {
+        require(_recipient.length <= drop.maxNumber, "maximum number of participants reached for Drop ");
+
+        require(drop.endTime >= block.timestamp, "AirDrop is Still Active");
+
+        require (block.timestamp >= drop.startTime, "Drop has not yet started");
+
+        if (drop.airDropType == AirDropType.LOTTERY) {
             for (uint256 i = 0; i < _recipient.length; i++) {
-                require(addressToAirDrop[tokenAdress] != _recipient[i], "User Has Already Gotten this Drop!");
+                
+                require(addressToAirDrop[_id] != _recipient[i], "User Has Already Gotten this Drop!");
 
-                AirDrop(tokenAdress).transfer(_recipient[i], amount);
+                require(AirDrop(drop.requirementAddress).balanceOf(_recipient[i]) >= drop.minimumAmount , "Recepient does not Qualify For Drop");
+                
+                AirDrop(tokenAddress).transfer(_recipient[i], drop.amount / _recipient.length);
 
-                emit TokenClaimed(_recipient[i], tokenAdress);
+                emit TokenClaimed(_recipient[i], tokenAddress);
             } 
         }
         else if (drop.airDropType == AirDropType.USER_LIMITED) {
 
         } 
-        else if (drop.airDropType == AirDropTpre == AirDropYpe.TOKEN_LIMITED) {
-
+        else if (drop.airDropType == AirDropType.TOKEN_LIMITED) {
+            
         }
         
-
-        
+     
 
         return true;
     }
 
-    function cancelAirDrop(uint id, address tokenAddress) public {
+
+
+    function cancelAirDrop(uint id, address tokenAddress) public onlyAdmin(id)
+    onlyNotCrypto
+    onlyAdmin(id)
+    {
         
-        require(msg.sender == airdropTokenAdmin[tokenAdress]);
 
-
-        cancelledAirDrop[_id] = tokenAddress;
+        cancelledAirDrop[id] = tokenAddress;
 
         emit TokenCancelled(id, tokenAddress);
 
@@ -132,13 +152,16 @@ contract NotCryptoAirDrop is Initializable, ContextUpgradeable, OwnableUpgradeab
     }
 
 
-    function getAirDropDetails (uint256 _id) public view returns (AirDropToken) {
+    function getAirDropDetails (uint256 _id) public view returns (AirDropToken memory) {
         return airDropObject[_id];
     }
-    function createAirDropToken(uint256 amount, address contractAddress, AirDropType _type) public payable 
+
+    function createAirDropToken(uint256 maxNumber, uint256 amount, address contractAddress, AirDropType _type, uint startTime, uint endTime, address requirementAddress,
+        uint256 minimumAmount) public payable 
     returns (bool) {
         
-        
+        uint dropId = airDropId++;
+
         require(
             AirDrop(contractAddress).balanceOf(contractAddress) >= amount,
             "You Do Not Have Enough Tokens In Your Contract To Create AirDrop. Please Add More"
@@ -149,21 +172,26 @@ contract NotCryptoAirDrop is Initializable, ContextUpgradeable, OwnableUpgradeab
        
         payable(contractAddress).transfer(amount);
                 
-        airdropTokenAdmin[airDropId++] = msg.sender;
+        airdropTokenAdmin[dropId] = msg.sender;
         
         AirDropToken memory airDrop = AirDropToken(
-                contractAddress,
-                amount,
-                airDropId++,
-                _type
+        contractAddress,
+        amount,
+        _type,
+        startTime,
+        endTime,
+        dropId,
+        maxNumber,
+        requirementAddress,
+        minimumAmount
         );
 
-        airDropToken[airDropId++] = contactAddress;
+        airDropToken[dropId] = contractAddress;
 
 
-        airDropObject[airDropId++] = airDrop;
+        airDropObject[dropId] = airDrop;
 
-        emit AirDropTokenCreated (airDrop, msg.sender, contractAddress);
+        emit AirDropTokenCreated (airDrop, msg.sender, contractAddress, dropId);
         
 
         return true;

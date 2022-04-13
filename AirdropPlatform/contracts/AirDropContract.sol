@@ -105,7 +105,7 @@ contract NotCryptoAirDrop is Initializable, ContextUpgradeable, OwnableUpgradeab
 
         require (block.timestamp >= drop.startTime, "Drop has not yet started");
 
-        if (drop.airDropType == AirDropType.LOTTERY) {
+      
             for (uint256 i = 0; i < _recipient.length; i++) {
                 
                 require(addressToAirDrop[_id] != _recipient[i], "User Has Already Gotten this Drop!");
@@ -115,14 +115,9 @@ contract NotCryptoAirDrop is Initializable, ContextUpgradeable, OwnableUpgradeab
                 AirDrop(tokenAddress).transfer(_recipient[i], drop.amount / _recipient.length);
 
                 emit TokenClaimed(_recipient[i], tokenAddress);
-            } 
-        }
-        else if (drop.airDropType == AirDropType.USER_LIMITED) {
-
+        
         } 
-        else if (drop.airDropType == AirDropType.TOKEN_LIMITED) {
-            
-        }
+        
         
      
 

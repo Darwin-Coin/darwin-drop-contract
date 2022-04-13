@@ -30,6 +30,10 @@ contract NotCryptoAirDrop is Initializable, ContextUpgradeable, OwnableUpgradeab
 
     uint public airDropId = 0;
 
+    uint public numberAfterStartDays;
+
+    uint public timeDifference;
+
     address public notCryptoAddress;
 
     struct AirDropToken {
@@ -45,13 +49,13 @@ contract NotCryptoAirDrop is Initializable, ContextUpgradeable, OwnableUpgradeab
     }
 
     modifier onlyNotCrypto {
-        require(msg.sender == notCryptoAddress, "Only NotContract Authorized can change the Address");
+        require(msg.sender == notCryptoAddress, "Unauthorized");
       
          _;
     }
 
     modifier onlyAdmin (uint _id) {
-        require(airdropTokenAdmin[_id] == msg.sender);
+        require(airdropTokenAdmin[_id] == msg.sender, "Unauthorized");
 
          _;
     }
@@ -69,12 +73,14 @@ contract NotCryptoAirDrop is Initializable, ContextUpgradeable, OwnableUpgradeab
 
     mapping (uint => AirDropToken) public airDropObject;
 
+    mapping(address => uint256) public pendingWithdrawals;
+
     event AirDropTokenCreated(AirDropToken token, address indexed creatorAddress, 
     address indexed contractAddress, uint tokenId);
     
     event TokenClaimed(address indexed claimer, address indexed contractAddress);
     
-    event TokenCancelled(uint id, address tokenAddress);
+    event TokenCancelled(uint id, address tokenAddress, address canceller);
 
     function initialize(address _notCrypto) public initializer {
 
@@ -90,8 +96,7 @@ contract NotCryptoAirDrop is Initializable, ContextUpgradeable, OwnableUpgradeab
     }
     //creates AirDropToken
    
-    function airDropTokens(address[] memory _recipient, address tokenAddress, uint _id) public
-    onlyNotCrypto
+    function airDropTokens(address[] calldata _recipient, address tokenAddress, uint _id) public
     onlyAdmin(_id)
     returns (bool) {
         
@@ -99,12 +104,11 @@ contract NotCryptoAirDrop is Initializable, ContextUpgradeable, OwnableUpgradeab
 
         AirDropToken memory drop = airDropObject[_id];
 
-        require(_recipient.length <= drop.maxNumber, "maximum number of participants reached for Drop ");
+        require(_recipient.length <= drop.maxNumber, "AirDrop is full");
 
-        require(drop.endTime >= block.timestamp, "AirDrop is Still Active");
+        require(drop.endTime <= block.timestamp, "AirDrop is Still Active");
 
-        require (block.timestamp >= drop.startTime, "Drop has not yet started");
-
+    
       
             for (uint256 i = 0; i < _recipient.length; i++) {
                 
@@ -126,16 +130,30 @@ contract NotCryptoAirDrop is Initializable, ContextUpgradeable, OwnableUpgradeab
 
 
 
-    function cancelAirDrop(uint id, address tokenAddress) public onlyAdmin(id)
+    function cancelAirDrop(uint id, address tokenAddress) public 
     onlyNotCrypto
-    onlyAdmin(id)
     {
+        require(airdropTokenAdmin[id] == msg.sender, "Unauthorized");
+
+        AirDropToken memory drop = airDropObject[id];
         
+        require(drop.endTime <= block.timestamp, "AirDrop already Ended");
 
         cancelledAirDrop[id] = tokenAddress;
 
-        emit TokenCancelled(id, tokenAddress);
+        pendingWithdrawals[airdropTokenAdmin[id]] = drop.amount;
 
+        emit TokenCancelled(id, tokenAddress, msg.sender);
+
+    }
+
+    function withdraw(address _tokenAddress) public payable {
+       
+        uint256 amount = pendingWithdrawals[msg.sender];
+        // Remember to zero the pending refund before
+        // sending to prevent re-entrancy attacks
+        pendingWithdrawals[msg.sender] = 0;
+        AirDrop(_tokenAddress).transfer(msg.sender, amount);
     }
 
     function setPrice(uint256 _price) public onlyNotCrypto {
@@ -144,6 +162,14 @@ contract NotCryptoAirDrop is Initializable, ContextUpgradeable, OwnableUpgradeab
     }
     function setNotCryptoAddress (address _notCryptoAddress) public onlyNotCrypto {
         notCryptoAddress = _notCryptoAddress;
+    }
+
+    function setDaysAfterStart (uint _number) public onlyNotCrypto {
+        numberAfterStartDays = _number;
+    }
+
+    function setDaysDifference (uint _difference) public onlyNotCrypto {
+        timeDifference = _difference;
     }
 
 
@@ -155,17 +181,25 @@ contract NotCryptoAirDrop is Initializable, ContextUpgradeable, OwnableUpgradeab
         uint256 minimumAmount) public payable 
     returns (bool) {
         
-        uint dropId = airDropId++;
+        uint dropId = airDropId++;  
+
+        uint daysDiff = (endTime - startTime);
+
+        require (daysDiff <= timeDifference, "Time Difference Exceeded");
+
+        require (endTime >= block.timestamp && startTime >= block.timestamp, "Invalid Date");
+
+        require (startTime <= block.timestamp + numberAfterStartDays, "Invalid Start Date");
 
         require(
             AirDrop(contractAddress).balanceOf(contractAddress) >= amount,
-            "You Do Not Have Enough Tokens In Your Contract To Create AirDrop. Please Add More"
+            "Insufficient Funds"
         );
 
 
         require(msg.value >= price, "Not enough Paid to List Token");
        
-        payable(contractAddress).transfer(amount);
+        AirDrop(contractAddress).transferFrom(msg.sender, address(this), amount);
                 
         airdropTokenAdmin[dropId] = msg.sender;
         

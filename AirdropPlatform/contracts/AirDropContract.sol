@@ -8,8 +8,6 @@ import "./AirDrop.sol";
 
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 
-
-
 import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 
 

@@ -14,6 +14,8 @@ async function main() {
             chainName : 'Polygon',
             coinName : 'Matic',
             type : 'LOTTERY',
+            maxNumber : 2,
+            requirementType : 'TOKEN_REQUIRED',  
             status : 'active',
             coinSymbol: 'MATIC',
             startTime : new Date(1478708162022),
@@ -27,6 +29,8 @@ async function main() {
           coinName : 'Matic',
           type : 'USER_LIMITED',
           status : 'active',
+          maxNumber : 2,
+          requirementType : 'NFT_REQUIRED',
           coinSymbol: 'MATIC',
           startTime : new Date(1478708162022),
           endTime : new Date(1478708162022)

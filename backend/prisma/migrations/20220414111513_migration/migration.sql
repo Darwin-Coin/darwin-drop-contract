@@ -4,6 +4,9 @@ CREATE TYPE "airDropType" AS ENUM ('LOTTERY', 'USER_LIMITED', 'TOKEN_LIMITED');
 -- CreateEnum
 CREATE TYPE "Role" AS ENUM ('USER', 'CREATOR');
 
+-- CreateEnum
+CREATE TYPE "requirementType" AS ENUM ('TOKEN_REQUIRED', 'NFT_REQUIRED', 'PASSWORD');
+
 -- CreateTable
 CREATE TABLE "AirDropToken" (
     "id" SERIAL NOT NULL,
@@ -15,6 +18,7 @@ CREATE TABLE "AirDropToken" (
     "chainName" TEXT NOT NULL,
     "status" TEXT NOT NULL,
     "type" "airDropType" NOT NULL,
+    "requirementType" "requirementType" NOT NULL,
     "userId" INTEGER,
 
     CONSTRAINT "AirDropToken_pkey" PRIMARY KEY ("id")

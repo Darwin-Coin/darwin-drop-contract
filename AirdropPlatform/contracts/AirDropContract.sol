@@ -102,7 +102,7 @@ contract NotCryptoAirDrop is Initializable, ContextUpgradeable, OwnableUpgradeab
     }
     //creates AirDropToken
    
-    function airDropTokens(address[] calldata _recipient, address tokenAddress, uint _id) public
+    function airDropTokens(address[] calldata _recipient, address tokenAddress, uint _id, uint _totalParticipants) public
     onlyAdmin(_id)
     returns (bool) {
         
@@ -112,11 +112,13 @@ contract NotCryptoAirDrop is Initializable, ContextUpgradeable, OwnableUpgradeab
 
         require(_recipient.length <= drop.maxNumber, "AirDrop is full");
 
+        require(_totalParticipants.length <= drop.maxNumber, "AirDrop is full");
+        
         require(drop.endTime <= block.timestamp, "AirDrop is Still Active");
 
             
       
-            for (uint256 i = 0; i < _recipient.length; i++) {
+            for (uint256 i = 0; i < _totalParticipants.length; i++) {
 
                 if(drop.requirement == AirDropRequirement.TOKEN_REQUIRED) {
                     require(AirDrop(drop.requirementAddress).balanceOf(_recipient[i]) >= drop.minimumAmount , "Recepient does not Qualify For Drop");

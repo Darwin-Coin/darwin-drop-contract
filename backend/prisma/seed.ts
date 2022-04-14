@@ -20,6 +20,18 @@ async function main() {
             endTime : new Date(1478708162022)
         }
     })
+
+    await prisma.airDropToken.create({
+      data : {
+          chainName : 'Mainnet',
+          coinName : 'Matic',
+          type : 'USER_LIMITED',
+          status : 'active',
+          coinSymbol: 'MATIC',
+          startTime : new Date(1478708162022),
+          endTime : new Date(1478708162022)
+      }
+  })
 }
 
 main()

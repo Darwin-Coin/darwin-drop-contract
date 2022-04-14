@@ -1,4 +1,3 @@
-import { timeStamp } from "console";
 import { objectType, enumType , extendType} from "nexus";
 import { User } from "./User";
 
@@ -25,9 +24,9 @@ const Type = enumType({
     type: 'Query',
     definition(t) {
       t.nonNull.list.field('airDrops', {
-        type: 'AirDropToken',
+        type: 'AirDrop',
         resolve(_parent, _args, ctx) {
-          return ctx.prisma.airDrop.findMany()
+          return ctx.prisma.airDropToken.findMany()
         },
       })
     },

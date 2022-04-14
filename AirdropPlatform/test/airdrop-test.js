@@ -10,6 +10,9 @@ describe("NotCryptoAirDrop", function () {
     let contract;
     let addressOne;
     let addressTwo;
+    
+
+    const [owner] = await ethers.getSigners();
 
     beforeEach(async function () {
 
@@ -23,6 +26,8 @@ describe("NotCryptoAirDrop", function () {
     await contract.deployed();
 
     contract.initialize(NotCryptoaddress);
+
+    
 
   });
     
@@ -53,15 +58,20 @@ describe("NotCryptoAirDrop", function () {
 
         it ("should set limit to Days After Start Time") , async function() {
 
-            const result = await contract.setDaysAfterStart(420);
-
+            await contract.setDaysAfterStart(420);
+            
+            expect(contract.numberAfterStartDays).to.be.not.undefined;
+            expect(contract.numberAfterStartDays).to.be.not.null;
             expect(contract.numberAfterStartDays == 420);
         }
 
         it ("should set limit to Time difference") , async function() {
+            
+           
+            await contract.setDaysDifference(420);
 
-            const result = await contract.setDaysDifference(420);
-
+            expect(contract.timeDifference).to.be.not.undefined;
+            expect(contract.timeDifference).to.be.not.null;
             expect(contract.timeDifference == 420);
         
         }

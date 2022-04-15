@@ -8,27 +8,45 @@ datasource db {
 }
 
 model AirDropToken {
-  id         Int         @id @unique @default(autoincrement())
-  createdAt  DateTime    @default(now())
-  startTime  DateTime
-  endTime    DateTime
-  coinName   String
-  coinSymbol String
-  chainName  String
-  status     String
-  maxNumber  Int
-  type       airDropType
-  requirementType requirementType
-  User       User?       @relation(fields: [userId], references: [id])
-  userId     Int?
+  id                Int                @id @unique @default(autoincrement())
+  createdAt         DateTime           @default(now())
+  startTime         DateTime
+  endTime           DateTime
+  coinName          String
+  coinSymbol        String
+  chainName         String
+  status            String
+  maxNumber         Int
+  type              airDropType
+  requirementType   requirementType
+  User              User               @relation(fields: [userId], references: [id])
+  userId            Int
+  PasswordProtected PasswordProtected?
+  DropParticipants  DropParticipants?
 }
 
 model User {
-  id        Int            @id @default(autoincrement())
-  createdAt DateTime       @default(now())
-  wallet    String         @unique
-  role      Role           @default(USER)
-  airDrops  AirDropToken[]
+  id                 Int               @id @default(autoincrement())
+  createdAt          DateTime          @default(now())
+  wallet             String            @unique
+  role               Role              @default(USER)
+  DropParticipants   DropParticipants? @relation(fields: [dropParticipantsId], references: [id])
+  dropParticipantsId Int?
+  AirDropToken       AirDropToken[]
+}
+
+model PasswordProtected {
+  id        Int          @id @default(autoincrement())
+  passwords String[]
+  dropId    Int          @unique
+  airDrop   AirDropToken @relation(fields: [dropId], references: [id])
+}
+
+model DropParticipants {
+  id           Int          @id @default(autoincrement())
+  participants User[]
+  dropId       Int          
+  drop         AirDropToken @relation(fields: [dropId], references: [id])
 }
 
 enum airDropType {

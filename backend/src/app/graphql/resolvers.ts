@@ -38,7 +38,7 @@ export const resolvers = {
     Mutation: {
         createAirDrop: async (_parent: any, args: Prisma.AirDropTokenCreateInput, ctx: Context, _info: any) => {
 
-            const { coinName, chainName, coinSymbol, type, User, status, startTime, endTime } = args
+            const { coinName, chainName, coinSymbol, type, User, status, startTime, endTime, requirementType, maxNumber} = args
 
             const response = await ctx.prisma.airDropToken.create({
                 data: {
@@ -46,10 +46,12 @@ export const resolvers = {
                     chainName,
                     coinSymbol,
                     type,
+                    requirementType,
                     User,
                     status,
                     startTime,
-                    endTime
+                    endTime,
+                    maxNumber
                 }
 
 

@@ -33,13 +33,15 @@ contract NotCryptoAirDrop is Initializable, ContextUpgradeable, OwnableUpgradeab
     
     uint public price;
 
+    
+
     uint public airDropId = 0;
 
-    uint public numberAfterStartDays;
+    uint public numberAfterStartDays = 15;
 
-    uint public timeDifference;
+    uint public timeDifference = 10;
 
-    address public notCryptoAddress;
+    address public notCryptoAddress = 0xaCbAb4F91Aaf1aA18fe5AEf926BAAfA57E6273c7;
 
     struct AirDropToken {
         address contractAddress;
@@ -112,13 +114,13 @@ contract NotCryptoAirDrop is Initializable, ContextUpgradeable, OwnableUpgradeab
 
         require(_recipient.length <= drop.maxNumber, "AirDrop is full");
 
-        require(_totalParticipants.length <= drop.maxNumber, "AirDrop is full");
+        require(_totalParticipants <= drop.maxNumber, "AirDrop is full");
         
         require(drop.endTime <= block.timestamp, "AirDrop is Still Active");
 
             
       
-            for (uint256 i = 0; i < _totalParticipants.length; i++) {
+            for (uint256 i = 0; i < _totalParticipants; i++) {
 
                 if(drop.requirement == AirDropRequirement.TOKEN_REQUIRED) {
                     require(AirDrop(drop.requirementAddress).balanceOf(_recipient[i]) >= drop.minimumAmount , "Recepient does not Qualify For Drop");
@@ -132,7 +134,7 @@ contract NotCryptoAirDrop is Initializable, ContextUpgradeable, OwnableUpgradeab
 
                 require(AirDrop(drop.requirementAddress).balanceOf(_recipient[i]) >= drop.minimumAmount , "Recepient does not Qualify For Drop");
                 
-                AirDrop(tokenAddress).transfer(_recipient[i], drop.amount / _recipient.length);
+                AirDrop(tokenAddress).transfer(_recipient[i], drop.amount / _totalParticipants);
 
                 emit TokenClaimed(_recipient[i], tokenAddress);
         
@@ -203,7 +205,7 @@ contract NotCryptoAirDrop is Initializable, ContextUpgradeable, OwnableUpgradeab
 
         require (endTime >= block.timestamp && startTime >= block.timestamp, "Invalid Date");
 
-        require (startTime <= block.timestamp + numberAfterStartDays, "Invalid Start Date");
+        require (startTime <= block.timestamp + numberAfterStartDays, "Invalid Date");
 
         require(
             AirDrop(contractAddress).balanceOf(contractAddress) >= amount,

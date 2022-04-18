@@ -8,6 +8,5 @@ export enum AirDropRequirement {
     TOKEN_REQUIRED,
     NFT_REQUIRED,
     PASSWORD
-
 }
 

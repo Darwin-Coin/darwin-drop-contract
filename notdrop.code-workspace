@@ -1,0 +1,17 @@
+{
+    "folders": [
+        {
+            "name": "contract",
+            "path": "contract"
+        },
+        {
+            "name": "backend",
+            "path": "backend"
+        },
+        {
+            "name": "root",
+            "path": "."
+        }
+    ],
+    "settings": {}
+}

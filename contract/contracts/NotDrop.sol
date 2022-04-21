@@ -42,8 +42,8 @@ contract NotDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
         address contractAddress;
         uint256 amount;
         AirDropType airDropType;
-        uint256 startTime;
-        uint256 endTime;
+        uint startTime;
+        uint endTime;
         uint256 id;
         uint256 maxNumber;
         address requirementAddress;
@@ -102,6 +102,7 @@ contract NotDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
         uint256 _id,
         uint256 _totalParticipants
     ) public onlyAdmin(_id) returns (bool) {
+        
         require(cancelledAirDrop[_id] != tokenAddress, "AirDrop Has Been Cancelled");
 
         AirDropToken memory drop = airDropObject[_id];
@@ -121,7 +122,7 @@ contract NotDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
 
             require(addressToAirDrop[_id] != _recipient[i], "User Has Already Gotten this Drop!");
 
-            require(AirDrop(drop.requirementAddress).balanceOf(_recipient[i]) >= drop.minimumAmount, "Recepient does not Qualify For Drop");
+           
 
             AirDrop(tokenAddress).transfer(_recipient[i], drop.amount / _totalParticipants);
 
@@ -178,22 +179,23 @@ contract NotDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
         uint256 amount,
         address contractAddress,
         AirDropType _type,
-        uint256 startTime,
-        uint256 endTime,
+        uint startTime,
+        uint endTime,
         address requirementAddress,
         uint256 minimumAmount,
         AirDropRequirement requirement
-    ) public payable returns (bool) {
+    ) public payable returns (uint256) {
         uint256 dropId = airDropId++;
-
-        uint256 daysDiff = (endTime - startTime);
-
-        require(daysDiff <= timeDifference, "Time Difference Exceeded");
-
+ 
         require(endTime >= block.timestamp && startTime >= block.timestamp, "Invalid Date");
 
-        require(startTime <= block.timestamp + numberAfterStartDays, "Invalid Date");
+        require(startTime <= (block.timestamp + numberAfterStartDays), "Invalid Start Date");
 
+
+        uint daysDiff = (endTime - startTime);
+        
+        require(daysDiff <= timeDifference, "Time Difference Exceeded");
+       
         require(AirDrop(contractAddress).balanceOf(contractAddress) >= amount, "Insufficient Funds");
 
         require(msg.value >= price, "Not enough Paid to List Token");
@@ -221,6 +223,6 @@ contract NotDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
 
         emit AirDropTokenCreated(airDrop, msg.sender, contractAddress, dropId);
 
-        return true;
+        return dropId;
     }
 }

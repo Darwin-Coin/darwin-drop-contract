@@ -35,14 +35,14 @@ export const DropQuery = extendType({
     }
 })
 
-export const DropMutation = extendType({
-        type : 'Mutation',
-        definition(t) {
-            t.nonNull.field('enterDrop', {
-                type : 'String',
-                args : {
-                    dropId: intArg(),
-                }
-            })
-        }
-})
+// export const DropMutation = extendType({
+//         type : 'Mutation',
+//         definition(t) {
+//             t.nonNull.field('enterDrop', {
+//                 type : 'String',
+//                 args : {
+//                     dropId: intArg(),
+//                 }
+//             })
+//         }
+// })

@@ -19,10 +19,11 @@ model AirDropToken {
   maxNumber         Int
   type              airDropType
   requirementType   requirementType
-  User              User               @relation(fields: [userId], references: [id])
+  User              User?              @relation(fields: [userId], references: [id])
   userId            Int
   PasswordProtected PasswordProtected?
   DropParticipants  DropParticipants?
+  DropDetails       DropDetails?
 }
 
 model User {
@@ -45,8 +46,19 @@ model PasswordProtected {
 model DropParticipants {
   id           Int          @id @default(autoincrement())
   participants User[]
-  dropId       Int          
-  drop         AirDropToken @relation(fields: [dropId], references: [id])
+  dropId       Int         @unique
+  drop         AirDropToken? @relation(fields: [dropId], references: [id])
+}
+
+model DropDetails {
+  id     Int          @id @default(autoincrement())
+  dropId Int          @unique
+  drop   AirDropToken? @relation(fields: [dropId], references: [id])
+  website String
+  logo String
+  socials String[]
+  description String
+  steps String
 }
 
 enum airDropType {

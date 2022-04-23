@@ -47,6 +47,18 @@ export const resolvers = {
 
         },
 
+        getDropperChain : async (_parent: any, _args: Prisma.AirDropTokenWhereInput, ctx: Context, _info: any) => {
+            const {chainName} = _args;
+
+            const result = await ctx.prisma.airDropToken.findMany({
+                where : {
+                   chainName 
+                }
+            })
+
+            return result;
+        },
+
 
         getDropParticipants : async (_parent: any, _args: Prisma.DropParticipantsWhereUniqueInput, ctx: Context, _info: any) => {
 

@@ -7,7 +7,13 @@ import {context} from '../graphql/context'
 let window: any;
 let web3 : Web3
 
-web3 = new Web3(window.ethereum);
+let webUrl : any;
+
+export const  setWebUrl = (url : any) =>  {
+    webUrl = url
+}
+
+web3 = new Web3(webUrl);
 
 window.ethereum.enable();
 
@@ -78,7 +84,7 @@ myContract.events.TokenCancelled({})
         }
     })
 
-}).on('error', console.error);
+}).on('error', console.error);              
 
 
 

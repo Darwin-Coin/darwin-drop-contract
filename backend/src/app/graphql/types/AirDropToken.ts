@@ -9,6 +9,7 @@ export const AirDropToken = objectType({
         t.string('chainName')
         t.string('status')
         t.string('coinSymbol')
+        t.string('chainId')
         t.int('maxNumber')
         t.nonNull.int('id')
         t.nonNull.int('userId')
@@ -17,7 +18,7 @@ export const AirDropToken = objectType({
             resolve : (parent, _, ctx) => {
                 return ctx.prisma.airDropToken
                 .findUnique({
-                    where: { id: parent.id || undefined },
+                    where: { id: parent.userId || undefined },
                 })
                 .User();
             }
@@ -38,6 +39,20 @@ export const AirDropQuery = extendType({
       },
     })
 
+    t.list.field('getTokensByChain', {
+      type : 'AirDropToken',
+      args: {
+        chainId: nonNull(stringArg()),
+    },
+     resolve(_parent, _args, ctx) {
+      return ctx.prisma.airDropToken.findUnique(
+        {
+          where: { chainId: _args.chainId},
+        }
+      )
+    },
+    }),
+
     t.field('getAirDrop', {
       type : 'AirDropToken',
       args: {
@@ -55,8 +70,19 @@ export const AirDropQuery = extendType({
     t.list.field('getMyDrops', {type : 'AirDropToken', 
     args: {
       id: nonNull(intArg()),
+      wallet : nonNull(stringArg())
     },
-    resolve(_parent, _args, ctx) { 
+    async resolve(_parent, _args, ctx) { 
+
+      const user = await ctx.prisma.user.findUnique(
+        {
+            where : {id : _args.id}
+        }
+    )
+
+    if(user?.wallet != _args.wallet) {
+        throw new Error("Unauthorized!");
+    }
       return ctx.prisma.airDropToken.findUnique(
         {
           where: { id: _args.id },
@@ -86,96 +112,74 @@ const requirementType = enumType({
         'PASSWORD'],
 })
 
-export const AirDropMutation = extendType({
-  type: 'Mutation',
-  definition(t) {
-    t.nonNull.field('createAirDropToken', {
-      type : 'AirDropToken',
-      args : {
-        coinName :  nonNull(stringArg()),
-        chainName :  nonNull(stringArg()),
-        coinSymbol :  nonNull(stringArg()),
-        status :  nonNull(stringArg()),
-        userId : intArg(),
-        maxNumber : intArg(),
-        startTime : nonNull(stringArg()),
-        endTime : nonNull(stringArg()),
-        type : arg({
-          type : DropType
-        }),
-        requirementType : arg({
-          type : requirementType
-        }),
-      },
-      resolve(_parent, _args, ctx) {
-        return ctx.prisma.airDropToken.create(
-          {
-            data : {
-              chainName : _args.chainName,
-              coinName : _args.coinName,
-              coinSymbol : _args.coinSymbol,
-              userId : _args.userId,
-              status : _args.status,
-              maxNumber : _args.maxNumber,
-              endTime : new Date(_args.endTime),
-              startTime : new Date(_args.startTime),
-              type : _args.type,
-              requirementType : _args.requirementType
-            }
-          }
-        )
-      }
-    })
-    t.nonNull.field('updateAirDropToken', {
-      type : 'AirDropToken',
-      args : {
-        id : intArg(),
-        coinName :  nonNull(stringArg()),
-        chainName :  nonNull(stringArg()),
-        coinSymbol :  nonNull(stringArg()),
-        status :  nonNull(stringArg()),
-        userId : intArg(),
-        maxNumber : intArg(),
-        startTime : nonNull(stringArg()),
-        endTime : nonNull(stringArg()),
-        type : arg({
-          type : DropType
-        }),
-        requirementType : arg({
-          type : requirementType
-        }),
-      },
-      resolve(_parent, _args, ctx) {
-        return ctx.prisma.airDropToken.update(
-          {
-            where: { id: _args.id },
-            data : {
-              chainName : _args.chainName,
-              coinName : _args.coinName,
-              coinSymbol : _args.coinSymbol,
-              userId : _args.userId,
-              status : _args.status,
-              maxNumber : _args.maxNumber,
-              endTime : new Date(_args.endTime),
-              startTime : new Date(_args.startTime),
-              type : _args.type,
-              requirementType : _args.requirementType
-            }
-          }
-        )
-      }
-    })
-    t.field('deleteDropToken', {
-      type: 'AirDropToken',
-            args: {
-                id: nonNull(intArg()),
-            },
-            resolve(_parent, _args, ctx) {
-              return ctx.prisma.airDropToken.delete({
-                where: { id: _args.id },
-              })
-            }
-    })
-  }
-})
+// export const AirDropMutation = extendType({
+//   type: 'Mutation',
+//   definition(t) {
+//     // t.nonNull.field('createAirDropToken', {
+//     //   type : 'AirDropToken',
+//     //   args : {
+//     //     coinName :  nonNull(stringArg()),
+//     //     chainName :  nonNull(stringArg()),
+//     //     coinSymbol :  nonNull(stringArg()),
+//     //     status :  nonNull(stringArg()),
+//     //     userId : intArg(),
+//     //     maxNumber : intArg(),
+//     //     startTime : nonNull(stringArg()),
+//     //     endTime : nonNull(stringArg()),
+//     //     type : arg({
+//     //       type : DropType
+//     //     }),
+//     //     requirementType : arg({
+//     //       type : requirementType
+//     //     }),
+//     //   },
+//     //   resolve(_parent, _args, ctx) {
+//     //     return ctx.prisma.airDropToken.create(
+//     //       {
+//     //         data : {
+//     //           chainName : _args.chainName,
+//     //           coinName : _args.coinName,
+//     //           coinSymbol : _args.coinSymbol,
+//     //           userId : _args.userId,
+//     //           status : _args.status,
+//     //           maxNumber : _args.maxNumber,
+//     //           endTime : new Date(_args.endTime),
+//     //           startTime : new Date(_args.startTime),
+//     //           type : _args.type,
+//     //           requirementType : _args.requirementType
+//     //         }
+//     //       }
+//     //     )
+//     //   }
+//     // })
+//     t.nonNull.field('cancelAirDrop', {
+//       type : 'AirDropToken',
+//       args : {
+//         id : nonNull(intArg()),
+//         wallet : nonNull(stringArg())
+//       },
+//       resolve(_parent, _args, ctx) {
+//         return ctx.prisma.airDropToken.update(
+//           {
+//             where: { id: _args.id },
+//             data : {
+//               status : 'Cancelled'
+//             }
+//           }
+//         )
+//       }
+//     })
+//     // t.field('deleteDropToken', {
+//     //   type: 'AirDropToken',
+//     //         args: {
+//     //             id: nonNull(intArg()),
+//     //         },
+//     //         resolve(_parent, _args, ctx) {
+//     //           return ctx.prisma.airDropToken.delete({
+//     //             where: { id: _args.id },
+//     //           })
+//     //         }
+//     // })
+//   }
+// })
 

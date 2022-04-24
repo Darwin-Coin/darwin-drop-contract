@@ -4,6 +4,7 @@
 
 type AirDropToken {
   User: User
+  chainId: String
   chainName: String
   coinName: String
   coinSymbol: String
@@ -15,11 +16,27 @@ type AirDropToken {
   userId: Int!
 }
 
+type DropDetails {
+  description: String
+  drop: AirDropToken
+  dropId: Int
+  id: Int
+  logo: String
+  socials: [String]
+  steps: String
+  website: String
+}
+
+type DropParticipants {
+  dropId: Int
+  id: Int
+  participants: [String]
+}
+
 type Mutation {
-  createAirDropToken(chainName: String!, coinName: String!, coinSymbol: String!, endTime: String!, maxNumber: Int, requirementType: RequirementType, startTime: String!, status: String!, type: Type, userId: Int): AirDropToken!
-  deleteDropToken(id: Int!): AirDropToken
-  generatePasswords(dropId: Int, participants: Int): String!
-  updateAirDropToken(chainName: String!, coinName: String!, coinSymbol: String!, endTime: String!, id: Int, maxNumber: Int, requirementType: RequirementType, startTime: String!, status: String!, type: Type, userId: Int): AirDropToken!
+  enterDrop(dropId: Int, password: String, wallet: String): DropParticipants!
+  enterDropDetails(description: String, dropId: Int, logo: String, socials: [String], steps: String, website: String): DropDetails!
+  updateDropDetails(description: String, dropId: Int, logo: String, socials: [String], steps: String, website: String): DropDetails!
 }
 
 type PasswordProtected {
@@ -31,8 +48,12 @@ type PasswordProtected {
 
 type Query {
   getAirDrop(id: Int!): AirDropToken
+  getDropDetails(id: Int!): DropDetails
+  getDropParticipants(id: Int!, wallet: String!): [DropParticipants]
   getDrops: [AirDropToken]
-  getMyDrops(id: Int!): [AirDropToken]
+  getMyDrops(id: Int!, wallet: String!): [AirDropToken]
+  getPasswords(dropId: Int, wallet: String): [String]
+  getTokensByChain(chainId: String!): [AirDropToken]
   getUser(id: Int!): User
   users: [User]
 }

@@ -11,7 +11,7 @@
     "prettier-format": "prettier 'src/app/**/*.ts' --write",
     "migrate:deploy": "prisma migrate deploy",
     "build": "prisma generate && npm run generate && tsc",
-    "start": "node dist/src/index.js"
+    "start": "npm src/app/main.ts"
   },
   "keywords": [],
   "author": "",

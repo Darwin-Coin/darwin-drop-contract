@@ -53,10 +53,6 @@ myContract.events.AirDropTokenCreated({})
     })
     
     
-    
-    
-
-
     await context.prisma.airDropToken.create({
         data : {
                     coinName,

@@ -65,7 +65,8 @@ describe("NotCrypto", async () => {
                 now,
                 tokenAddress,
                 1,
-                AirDropRequirement.NFT_REQUIRED
+                AirDropRequirement.NFT_REQUIRED,
+                1
             )
 
             expect(result).to.be.revertedWith("Invalid Date");
@@ -85,7 +86,8 @@ describe("NotCrypto", async () => {
                     date,
                     tokenAddress,
                     1,
-                    AirDropRequirement.NFT_REQUIRED
+                    AirDropRequirement.NFT_REQUIRED,
+                    1
                 )
     
                 expect(result).to.be.revertedWith("Invalid Date");
@@ -104,7 +106,8 @@ describe("NotCrypto", async () => {
                     now,
                     tokenAddress,
                     1,
-                    AirDropRequirement.NFT_REQUIRED
+                    AirDropRequirement.NFT_REQUIRED,
+                    1
                 )
     
                 expect(result).to.be.revertedWith("Invalid Date");
@@ -123,7 +126,8 @@ describe("NotCrypto", async () => {
                     now,
                     tokenAddress,
                     1,
-                    AirDropRequirement.NFT_REQUIRED
+                    AirDropRequirement.NFT_REQUIRED,
+                    1
                 )
     
                 expect(result).to.be.revertedWith("Time Difference Exceeded");
@@ -146,7 +150,8 @@ describe("NotCrypto", async () => {
                     end,
                     tokenAddress,
                     1,
-                    AirDropRequirement.NFT_REQUIRED, {
+                    AirDropRequirement.NFT_REQUIRED,
+                    1, {
                         value : BigNumber.from(1000)
                     }
                 )

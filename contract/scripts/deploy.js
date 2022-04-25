@@ -5,7 +5,7 @@ const { utils } = require("ethers");
 async function main() {
     
 
-     const contractFactory = await hre.ethers.getContractFactory("NotCryptoAirDrop");
+     const contractFactory = await hre.ethers.getContractFactory("NotDrop");
 
     // Deploy contract with the correct constructor arguments
     const contract = await contractFactory.deploy();

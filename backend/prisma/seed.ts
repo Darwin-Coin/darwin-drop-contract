@@ -18,7 +18,7 @@ async function main() {
             requirementType : 'TOKEN_REQUIRED',  
             status : 'active',
             coinSymbol: 'MATIC',
-            userId : 3,
+            chainId : 'BNB',
             startTime : new Date(1478708162022),
             endTime : new Date(1478708162022)
         }
@@ -31,7 +31,7 @@ async function main() {
           type : 'USER_LIMITED',
           status : 'active',
           maxNumber : 2,
-          userId : 3,
+          chainId : 'BNB',
           requirementType : 'NFT_REQUIRED',
           coinSymbol: 'MATIC',
           startTime : new Date(1478708162022),

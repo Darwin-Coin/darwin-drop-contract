@@ -1,4 +1,5 @@
 import { objectType, enumType, extendType, intArg, nonNull, stringArg, arg } from "nexus";
+import { makeString } from "../../functions/random_string";
 
 
 export const User = objectType({
@@ -7,7 +8,7 @@ export const User = objectType({
         t.string('wallet')
         t.nonNull.int('id')
         t.field('role', {type: Role})
-        
+        t.string('nonce')
     }
 })
 
@@ -42,6 +43,24 @@ const Role = enumType({
           })
       }
 
+  })
+
+  export const UserMutation = extendType({
+    type : 'Mutation',
+    definition(t) {
+      t.field('createUser', {
+        type : 'User',
+        args : {
+          wallet : stringArg()
+        },
+        resolve(_parent, _args, ctx) {
+          return ctx.prisma.user.create({
+            wallet : _args.wallet,
+            nonce : makeString()
+          })
+        }
+      })
+    }
   })
 
   

@@ -1,3 +1,4 @@
+import { toBuffer, hashPersonalMessage, fromRpcSig, ecrecover, publicToAddress, bufferToHex } from "ethereumjs-util";
 import { extendType, intArg, list, nonNull, objectType, stringArg } from "nexus";
 
 
@@ -52,7 +53,6 @@ export const DropDetailsMutation = extendType({
                 description : stringArg(),
                 steps: stringArg(),
                 socials : list(stringArg())
-
             },
             resolve(_parent, _args, ctx) {
                 return ctx.prisma.dropDetails.create({
@@ -75,11 +75,41 @@ export const DropDetailsMutation = extendType({
                 logo : stringArg(),
                 description : stringArg(),
                 steps: stringArg(),
-                socials : list(stringArg())
-
+                socials : list(stringArg()),
+                wallet : stringArg()
             },
-            resolve(_parent, _args, ctx) {
-                return ctx.prisma.dropDetails.update({
+            async resolve(_parent, _args, ctx) {
+
+
+
+                if(_args.dropId == null) {
+
+                    throw new Error("AirDrop Has Not Been Created");
+                }
+
+                const user = await ctx.prisma.user.findUnique(
+                    {
+                        where: { wallet: _args.wallet }
+                    }
+                )
+
+                const msg = `I am signing my one-time nonce: ${user.nonce}`;
+
+                const msgBuffer = toBuffer(msg);
+                const msgHash = hashPersonalMessage(msgBuffer);
+                const signatureBuffer = toBuffer(_args.signature);
+                const signatureParams = fromRpcSig(signatureBuffer.toString());
+                const publicKey = ecrecover(
+                    msgHash,
+                    signatureParams.v,
+                    signatureParams.r,
+                    signatureParams.s
+                );
+                const addressBuffer = publicToAddress(publicKey);
+                const address = bufferToHex(addressBuffer);
+                
+                if(address.toLowerCase() === _args.wallet.toLowerCase()) {
+                    return ctx.prisma.dropDetails.update({
                         where : {
                         dropId : _args.dropId
                     },
@@ -92,6 +122,12 @@ export const DropDetailsMutation = extendType({
                         description : _args.description
                     }
                 })
+                } else {
+                    throw new Error("Unauthorized")
+                }
+
+
+               
             }
         })
     }

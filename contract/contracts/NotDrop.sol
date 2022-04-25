@@ -30,13 +30,13 @@ contract NotDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
 
     uint256 public price;
 
-    uint256 public airDropId = 0;
+    uint256 public airDropId;
 
-    uint256 public numberAfterStartDays = 15;
+    uint256 public numberAfterStartDays;
 
-    uint256 public timeDifference = 10;
+    uint256 public timeDifference;
 
-    address public notCryptoAddress = 0xaCbAb4F91Aaf1aA18fe5AEf926BAAfA57E6273c7;
+    address public NotCommunityAddress;
 
     struct AirDropToken {
         address contractAddress;
@@ -51,8 +51,8 @@ contract NotDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
         AirDropRequirement requirement;
     }
 
-    modifier onlyNotCrypto() {
-        require(msg.sender == notCryptoAddress, "Unauthorized");
+    modifier onlyNotCommunity() {
+        require(msg.sender == NotCommunityAddress, "Unauthorized");
 
         _;
     }
@@ -78,21 +78,24 @@ contract NotDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
 
     mapping(address => uint256) public pendingWithdrawals;
 
-    event AirDropTokenCreated(AirDropToken token, address indexed creatorAddress, address indexed contractAddress, uint256 tokenId);
+    event AirDropTokenCreated(AirDropToken token, address indexed creatorAddress, address indexed contractAddress, uint256 dropId, uint256 dropDetailsId);
 
     event TokenClaimed(address indexed claimer, address indexed contractAddress);
 
     event TokenCancelled(uint256 id, address tokenAddress, address canceller);
 
-    function initialize(address _notCrypto) public initializer {
+    function initialize(address _NotCommunity) public initializer {
         __Context_init_unchained();
         __Ownable_init_unchained();
-        __NotDrop_init_unchained(_notCrypto);
+        __NotDrop_init_unchained(_NotCommunity);
     }
 
-    function __NotDrop_init_unchained(address _notCrypto) private onlyInitializing {
-        notCryptoAddress = _notCrypto;
-        price = 0.1 ether;
+    function __NotDrop_init_unchained(address _NotCommunity) private onlyInitializing {
+        NotCommunityAddress = _NotCommunity;
+        price = 0.1371442 ether;
+        airDropId = 0;
+        numberAfterStartDays = 15;
+        timeDifference = 10;
     }
 
     //creates AirDropToken
@@ -132,8 +135,9 @@ contract NotDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
         return true;
     }
 
-    function cancelAirDrop(uint256 id, address tokenAddress) public onlyNotCrypto {
-        require(airdropTokenAdmin[id] == msg.sender || airdropTokenAdmin[id] == msg.sender, "Unauthorized");
+    function cancelAirDrop(uint256 id, address tokenAddress) public {
+        
+        require(airdropTokenAdmin[id] == msg.sender || NotCommunityAddress == msg.sender, "Unauthorized");
 
         AirDropToken memory drop = airDropObject[id];
 
@@ -154,19 +158,19 @@ contract NotDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
         AirDrop(_tokenAddress).transfer(msg.sender, amount);
     }
 
-    function setPrice(uint256 _price) public onlyNotCrypto {
+    function setPrice(uint256 _price) public onlyNotCommunity {
         price = _price;
     }
 
-    function setNotCryptoAddress(address _notCryptoAddress) public onlyNotCrypto {
-        notCryptoAddress = _notCryptoAddress;
+    function setNotCommunityAddress(address _NotCommunityAddress) public onlyNotCommunity {
+        NotCommunityAddress = _NotCommunityAddress;
     }
 
-    function setDaysAfterStart(uint256 _number) public onlyNotCrypto {
+    function setDaysAfterStart(uint256 _number) public onlyNotCommunity {
         numberAfterStartDays = _number;
     }
 
-    function setDaysDifference(uint256 _difference) public onlyNotCrypto {
+    function setDaysDifference(uint256 _difference) public onlyNotCommunity {
         timeDifference = _difference;
     }
 
@@ -183,7 +187,8 @@ contract NotDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
         uint endTime,
         address requirementAddress,
         uint256 minimumAmount,
-        AirDropRequirement requirement
+        AirDropRequirement requirement,
+        uint256 dropDetailsId
     ) public payable returns (uint256) {
         uint256 dropId = airDropId++;
  
@@ -221,7 +226,7 @@ contract NotDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
 
         airDropObject[dropId] = airDrop;
 
-        emit AirDropTokenCreated(airDrop, msg.sender, contractAddress, dropId);
+        emit AirDropTokenCreated(airDrop, msg.sender, contractAddress, dropId, dropDetailsId);
 
         return dropId;
     }

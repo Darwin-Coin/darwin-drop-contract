@@ -1,6 +1,6 @@
+import { toBuffer, hashPersonalMessage, fromRpcSig, ecrecover, publicToAddress, bufferToHex } from "ethereumjs-util";
 import { objectType, enumType, extendType, nonNull, intArg, stringArg, arg } from "nexus";
 ;
-
 
 export const AirDropToken = objectType({
     name: 'AirDropToken',
@@ -69,25 +69,43 @@ export const AirDropQuery = extendType({
 
     t.list.field('getMyDrops', {type : 'AirDropToken', 
     args: {
-      id: nonNull(intArg()),
-      wallet : nonNull(stringArg())
+      wallet : nonNull(stringArg()),
+      id : nonNull(intArg())
     },
     async resolve(_parent, _args, ctx) { 
 
       const user = await ctx.prisma.user.findUnique(
         {
-            where : {id : _args.id}
+            where: { wallet: _args.wallet }
         }
     )
 
-    if(user?.wallet != _args.wallet) {
-        throw new Error("Unauthorized!");
-    }
+    const msg = `I am signing my one-time nonce: ${user.nonce}`;
+
+    const msgBuffer = toBuffer(msg);
+    const msgHash = hashPersonalMessage(msgBuffer);
+    const signatureBuffer = toBuffer(_args.signature);
+    const signatureParams = fromRpcSig(signatureBuffer.toString());
+    const publicKey = ecrecover(
+        msgHash,
+        signatureParams.v,
+        signatureParams.r,
+        signatureParams.s
+    );
+    const addressBuffer = publicToAddress(publicKey);
+    const address = bufferToHex(addressBuffer);
+    
+    if(address.toLowerCase() === _args.wallet.toLowerCase()) {
       return ctx.prisma.airDropToken.findUnique(
         {
-          where: { id: _args.id },
+          where: {ownerWallet : _args.wallet},
         }
       )
+    } else {
+      throw new Error("Unauthorized");
+    }
+
+     
     }
   })
   }

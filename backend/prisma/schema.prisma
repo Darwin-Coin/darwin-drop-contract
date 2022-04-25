@@ -33,6 +33,7 @@ model User {
   wallet             String            @unique
   role               Role              @default(USER)
   AirDropToken       AirDropToken[]
+  nonce              String            
 }
 
 model PasswordProtected {
@@ -45,7 +46,7 @@ model PasswordProtected {
 model DropParticipants {
   id           Int          @id @default(autoincrement())
   participants String[]
-  dropId       Int         @unique
+  dropId       Int ?        @unique
   drop         AirDropToken? @relation(fields: [dropId], references: [id])
 }
 

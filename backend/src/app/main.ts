@@ -5,8 +5,14 @@ import { context } from './graphql/context'
 const server = new ApolloServer({
   schema,
   context,
+  introspection: true,                                      // 1
+  plugins: [ApolloServerPluginLandingPageLocalDefault()],  
 })
 
 server.listen().then(({ url }) => {
   console.log(`graphql api running at ${url}graphql`)
 })
+
+function ApolloServerPluginLandingPageLocalDefault(): import("apollo-server-core").PluginDefinition {
+  throw new Error('Function not implemented.')
+}

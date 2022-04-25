@@ -6,8 +6,12 @@
   "main": "index.js",
   "scripts": {
     "compile": "tsc",
-    "dev": "ts-node-dev src/app/main",
-    "start": "node ./build/app/main.js"
+    "dev": "ts-node-dev --transpile-only --no-notify --exit-child src/app/main.ts",
+    "generate": "ts-node --transpile-only src/app/schema",
+    "prettier-format": "prettier 'src/app/**/*.ts' --write",
+    "migrate:deploy": "prisma migrate deploy",
+    "build": "prisma generate && npm run generate && tsc",
+    "start": "npm src/app/main.ts"
   },
   "keywords": [],
   "author": "",
@@ -15,6 +19,7 @@
   "dependencies": {
     "@prisma/client": "^3.12.0",
     "apollo-server": "^3.6.7",
+    "ethereumjs-util": "^7.1.4",
     "ethers": "^5.6.4",
     "graphql": "^16.3.0",
     "nexus": "^1.3.0",

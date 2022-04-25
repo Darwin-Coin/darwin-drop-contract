@@ -13,6 +13,8 @@ export const  setWebUrl = (url : any) =>  {
     webUrl = url
 }
 
+
+
 web3 = new Web3(webUrl);
 
 window.ethereum.enable();
@@ -26,23 +28,28 @@ myContract.events.AirDropTokenCreated({})
 .on('data', async function(event : any){
     console.log(event.returnValues);
 
-    let coinName = event.returnValues.AirDropToken.name;
-    let chainName = event.returnValues.AirDropToken.name;
-    let coinSymbol = event.returnValues.AirDropToken.name;
-    let type = event.returnValues.AirDropToken.type;
-    let requirementType = event.returnValues.AirDropToken.requirementType;
-    let startTime = event.returnValues.AirDropToken.startTime;
-    let endTime = event.returnValues.AirDropToken.endTime;
-    let maxNumber = event.returnValues.AirDropToken.maxNumber;
-    let status = event.returnValues.AirDropToken.status;
-    let ownerWallet = event.returnValues.creatorAddress;
+    let coinName = event.returnValues.airdrop.name;
+    let chainName = event.returnValues.airdrop.name;
+    let coinSymbol = event.returnValues.airdrop.name;
+    let type = event.returnValues.airdrop.type;
+    let requirementType = event.returnValues.airdrop.requirementType;
+    let startTime = event.returnValues.airdrop.startTime;
+    let endTime = event.returnValues.airdrop.endTime;
+    let maxNumber = event.returnValues.airdrop.maxNumber;
+    let status = event.returnValues.airdrop.status;
+    let ownerWallet = event.returnValues.msg.sender;
     let chainId = event.returnValuses.chainId;
+    let dropdetailsId = event.returnValuses.dropDetailsId;
+    let dropId = event.returnvalues.dropId;
 
 
-    let User = context.prisma.user.findUnique({
-        where : ownerWallet
-
-        
+    await context.prisma.dropDetails.update({
+        where : {
+            id : dropdetailsId
+        }, 
+        data : {
+            dropId : dropId
+        }
     })
     
     

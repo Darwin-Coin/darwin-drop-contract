@@ -30,11 +30,11 @@ contract NotDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
 
     uint256 public price;
 
-    uint256 public airDropId = 0;
+    uint256 public airDropId;
 
-    uint256 public numberAfterStartDays = 15;
+    uint256 public numberAfterStartDays;
 
-    uint256 public timeDifference = 10;
+    uint256 public timeDifference;
 
     address public NotCommunityAddress;
 
@@ -92,7 +92,10 @@ contract NotDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
 
     function __NotDrop_init_unchained(address _NotCommunity) private onlyInitializing {
         NotCommunityAddress = _NotCommunity;
-        price = 0.1 ether;
+        price = 0.1371442 ether;
+        airDropId = 0;
+        numberAfterStartDays = 15;
+        timeDifference = 10;
     }
 
     //creates AirDropToken

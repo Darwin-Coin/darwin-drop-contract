@@ -11,7 +11,7 @@ require('@openzeppelin/hardhat-upgrades');
 
 dotenv.config();
 
-console.log('account', process.env.TEST_MNEMONICS)
+
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -47,7 +47,6 @@ const config: HardhatUserConfig = {
         bscTestNet: {
             loggingEnabled : true,
             url: "https://data-seed-prebsc-1-s1.binance.org:8545",
-            gasPrice: 20000000000,
             accounts: {
                 mnemonic: String(process.env.TEST_MNEMONICS),
                 count: 5,

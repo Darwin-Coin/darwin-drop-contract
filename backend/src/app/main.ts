@@ -9,7 +9,7 @@ const server = new ApolloServer({
   plugins: [ApolloServerPluginLandingPageLocalDefault()],  
 })
 
-server.listen().then(({ url }) => {
+server.listen({ port: process.env.PORT || 4000 }).then(({ url }) => {
   console.log(`graphql api running at ${url}graphql`)
 })
 

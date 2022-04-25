@@ -6,8 +6,12 @@
   "main": "index.js",
   "scripts": {
     "compile": "tsc",
-    "dev": "ts-node-dev src/app/main",
-    "start": "node ./build/app/main.js"
+    "dev": "ts-node-dev --transpile-only --no-notify --exit-child src/app/main.ts",
+    "generate": "ts-node --transpile-only src/app/schema",
+    "prettier-format": "prettier 'src/app/**/*.ts' --write",
+    "migrate:deploy": "prisma migrate deploy",
+    "build": "prisma generate && npm run generate && tsc",
+    "start": "node dist/src/index.js"
   },
   "keywords": [],
   "author": "",

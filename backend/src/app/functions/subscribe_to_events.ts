@@ -35,11 +35,14 @@ myContract.events.AirDropTokenCreated({})
     let endTime = event.returnValues.AirDropToken.endTime;
     let maxNumber = event.returnValues.AirDropToken.maxNumber;
     let status = event.returnValues.AirDropToken.status;
-    let wallet = event.returnValues.creatorAddress;
+    let ownerWallet = event.returnValues.creatorAddress;
+    let chainId = event.returnValuses.chainId;
 
 
     let User = context.prisma.user.findUnique({
-        where : wallet
+        where : ownerWallet
+
+        
     })
     
     
@@ -49,8 +52,10 @@ myContract.events.AirDropTokenCreated({})
 
     await context.prisma.airDropToken.create({
         data : {
-           coinName,
+                    coinName,
                     chainName,
+                    chainId,
+                    ownerWallet,
                     coinSymbol,
                     type,
                     requirementType,

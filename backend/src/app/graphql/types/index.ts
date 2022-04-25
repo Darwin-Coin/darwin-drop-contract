@@ -1,3 +1,5 @@
 export * from './AirDropToken'
 export * from './User'
 export * from './PasswordProtected'
+export * from './DropParticipants'
+export * from './DropDetails'

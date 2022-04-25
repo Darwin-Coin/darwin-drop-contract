@@ -1,4 +1,4 @@
-import { extendType, intArg, objectType } from "nexus";
+import { extendType, intArg, objectType, stringArg } from "nexus";
 import { generatePassword } from "../../functions/random_password_generator";
 export const PasswordProtected = objectType({
     name : 'PasswordProtected',
@@ -20,26 +20,38 @@ export const PasswordProtected = objectType({
 })
 
 
-export const PasswordMutation = extendType({
-    type : 'Mutation', 
-        definition(t) {
-            t.nonNull.field('generatePasswords', {
-                type : 'String',
-                args : {
-                    participants : intArg(),
-                    dropId : intArg()
-                },
-                resolve(_parent, _args, ctx) {
-                    const passwords = generatePassword(_args.participants)
-                
-                    return ctx.prisma.passwordProtected.create({
-                        data : {
-                            passwords : _args.passwords,
-                            dropId : _args.dropId
-                        }
-                    })
+export const getPasswordsQuery = extendType({
+    type: 'Query',
+    definition(t) {
+        t.list.string('getPasswords', {
+            args : {
+                wallet:  stringArg(),
+                dropId : intArg()
+              },
+              async resolve(_parent, _args, ctx) { 
+
+                const user = await ctx.prisma.user.findUnique(
+                    {
+                        where : {wallet : _args.wallet}
+                    }
+                )
+            
+                if(user?.wallet != _args.wallet) {
+                    throw new Error("Unauthorized!");
                 }
-            })
-        }
-    
+
+                return await ctx.prisma.passwordProtected.findUnique({
+                    where : {
+                        dropId : _args.dropId
+                    }
+                })
+              }
+
+              
+              
+        })
+
+        
+    }
 })
+

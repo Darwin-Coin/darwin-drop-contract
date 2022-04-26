@@ -18,13 +18,7 @@ async function main() {
     // Get contract address
     console.log("Contract deployed to:", contract.address);
 
-    // Get contract address
-    console.log("Initializing Contract");
-
-   
-    txn.wait();
-
-    console.log("Initialized Contract");
+    
 
 }
 

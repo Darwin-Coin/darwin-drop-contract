@@ -1,0 +1,275 @@
+{
+  "manifestVersion": "3.2",
+  "admin": {
+    "address": "0x2399AE475678Aa276D09D5C7f426ff932f50122f",
+    "txHash": "0x668daf6ec97a0f5ffaa5e56421f8f346beefb361ef8828fa1ca9022138687331"
+  },
+  "proxies": [
+    {
+      "address": "0x22413d9881aF0C84d4c77F9da677370c307a114C",
+      "txHash": "0xed8b4b60d8cbee118dead314a93ae8cf065c41604640bd9c614ef4325232d4d1",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x566A3A270b339F9B5F00c9369dfECDFf1d357616",
+      "txHash": "0x310966d03725243b533f38e1e7979d991ae6bd723d3fb2a581b03c5a88af32a9",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "1631028c5c22812a01dee2bb5f4c75c4888b38501b333bccd3bc3427e5fda3e5": {
+      "address": "0xAFDAcf58a7951bbCB0B4338D751AA2434e63641b",
+      "txHash": "0x2568fd16450cd60f77492e849c890f6a0ca8dfe4b939b2d7baec58d7c28a0cd1",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:39"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:44"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:87"
+          },
+          {
+            "label": "price",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_uint256",
+            "contract": "NotDrop",
+            "src": "contracts/NotDrop.sol:31"
+          },
+          {
+            "label": "airDropId",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_uint256",
+            "contract": "NotDrop",
+            "src": "contracts/NotDrop.sol:33"
+          },
+          {
+            "label": "numberAfterStartDays",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_uint256",
+            "contract": "NotDrop",
+            "src": "contracts/NotDrop.sol:35"
+          },
+          {
+            "label": "timeDifference",
+            "offset": 0,
+            "slot": "104",
+            "type": "t_uint256",
+            "contract": "NotDrop",
+            "src": "contracts/NotDrop.sol:37"
+          },
+          {
+            "label": "NotCommunityAddress",
+            "offset": 0,
+            "slot": "105",
+            "type": "t_address",
+            "contract": "NotDrop",
+            "src": "contracts/NotDrop.sol:39"
+          },
+          {
+            "label": "addressToAirDrop",
+            "offset": 0,
+            "slot": "106",
+            "type": "t_mapping(t_uint256,t_address)",
+            "contract": "NotDrop",
+            "src": "contracts/NotDrop.sol:67"
+          },
+          {
+            "label": "airDropToken",
+            "offset": 0,
+            "slot": "107",
+            "type": "t_mapping(t_uint256,t_address)",
+            "contract": "NotDrop",
+            "src": "contracts/NotDrop.sol:70"
+          },
+          {
+            "label": "airdropTokenAdmin",
+            "offset": 0,
+            "slot": "108",
+            "type": "t_mapping(t_uint256,t_address)",
+            "contract": "NotDrop",
+            "src": "contracts/NotDrop.sol:73"
+          },
+          {
+            "label": "cancelledAirDrop",
+            "offset": 0,
+            "slot": "109",
+            "type": "t_mapping(t_uint256,t_address)",
+            "contract": "NotDrop",
+            "src": "contracts/NotDrop.sol:75"
+          },
+          {
+            "label": "airDropObject",
+            "offset": 0,
+            "slot": "110",
+            "type": "t_mapping(t_uint256,t_struct(AirDropToken)1573_storage)",
+            "contract": "NotDrop",
+            "src": "contracts/NotDrop.sol:77"
+          },
+          {
+            "label": "pendingWithdrawals",
+            "offset": 0,
+            "slot": "111",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "NotDrop",
+            "src": "contracts/NotDrop.sol:79"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_enum(AirDropRequirement)1540": {
+            "label": "enum NotDrop.AirDropRequirement",
+            "members": [
+              "TOKEN_REQUIRED",
+              "NFT_REQUIRED",
+              "PASSWORD"
+            ],
+            "numberOfBytes": "1"
+          },
+          "t_enum(AirDropType)1536": {
+            "label": "enum NotDrop.AirDropType",
+            "members": [
+              "LOTTERY",
+              "USER_LIMITED",
+              "TOKEN_LIMITED"
+            ],
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_address)": {
+            "label": "mapping(uint256 => address)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(AirDropToken)1573_storage)": {
+            "label": "mapping(uint256 => struct NotDrop.AirDropToken)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(AirDropToken)1573_storage": {
+            "label": "struct NotDrop.AirDropToken",
+            "members": [
+              {
+                "label": "contractAddress",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "airDropType",
+                "type": "t_enum(AirDropType)1536",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "startTime",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "endTime",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "id",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "5"
+              },
+              {
+                "label": "maxNumber",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "6"
+              },
+              {
+                "label": "requirementAddress",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "7"
+              },
+              {
+                "label": "minimumAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "8"
+              },
+              {
+                "label": "requirement",
+                "type": "t_enum(AirDropRequirement)1540",
+                "offset": 0,
+                "slot": "9"
+              }
+            ],
+            "numberOfBytes": "320"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          }
+        }
+      }
+    }
+  }
+}

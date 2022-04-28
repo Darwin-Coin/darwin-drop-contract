@@ -6,6 +6,7 @@ import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
+import "hardhat-gas-reporter";
 
 require('@openzeppelin/hardhat-upgrades');
 
@@ -34,6 +35,9 @@ const config: HardhatUserConfig = {
             },
         }
     },
+    gasReporter: {
+        currency: 'BNB',
+    },
     networks: {
         hardhat: {
             loggingEnabled: false,
@@ -53,7 +57,8 @@ const config: HardhatUserConfig = {
                 initialIndex: 0
             }
         },
-    }
+    },
+
 
     
 };

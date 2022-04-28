@@ -13,7 +13,7 @@ async function main() {
     console.log("Deploying Contract");
 
     // Wait for this transaction to be mined
-    await contract.deployed();
+    await contract.deploy();
 
     // Get contract address
     console.log("Contract deployed to:", contract.address);

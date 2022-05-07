@@ -6,7 +6,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-import "./AirDrop.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 
@@ -118,16 +118,16 @@ contract NotDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
 
         for (uint256 i = 0; i < _totalParticipants; i++) {
             if (drop.requirement == AirDropRequirement.TOKEN_REQUIRED) {
-                require(AirDrop(drop.requirementAddress).balanceOf(_recipient[i]) >= drop.minimumAmount, "Recepient does not Qualify For Drop");
+                require(IERC20(drop.requirementAddress).balanceOf(_recipient[i]) >= drop.minimumAmount, "Recepient does not Qualify For Drop");
             } else if (drop.requirement == AirDropRequirement.NFT_REQUIRED) {
-                require(AirDrop(drop.requirementAddress).balanceOf(_recipient[i]) >= 1, "Recepient does not Qualify For Drop");
+                require(IERC20(drop.requirementAddress).balanceOf(_recipient[i]) >= 1, "Recepient does not Qualify For Drop");
             }
 
             require(addressToAirDrop[_id] != _recipient[i], "User Has Already Gotten this Drop!");
 
            
 
-            AirDrop(tokenAddress).transfer(_recipient[i], drop.amount / _totalParticipants);
+            IERC20(tokenAddress).transfer(_recipient[i], drop.amount / _totalParticipants);
 
             emit TokenClaimed(_recipient[i], tokenAddress);
         }
@@ -141,7 +141,7 @@ contract NotDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
 
         AirDropToken memory drop = airDropObject[id];
 
-        require(drop.endTime <= block.timestamp, "AirDrop already Ended");
+        require(drop.endTime >= block.timestamp, "AirDrop already Ended");
 
         cancelledAirDrop[id] = tokenAddress;
 
@@ -155,7 +155,7 @@ contract NotDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
         // Remember to zero the pending refund before
         // sending to prevent re-entrancy attacks
         pendingWithdrawals[msg.sender] = 0;
-        AirDrop(_tokenAddress).transfer(msg.sender, amount);
+        IERC20(_tokenAddress).transfer(msg.sender, amount);
     }
 
     function setPrice(uint256 _price) public onlyNotCommunity {
@@ -192,21 +192,21 @@ contract NotDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
     ) public payable returns (uint256) {
         uint256 dropId = airDropId++;
  
-        require(endTime >= block.timestamp && startTime >= block.timestamp, "Invalid Date");
+        require(endTime >= block.timestamp, "Invalid End Date");
 
-        require(startTime <= (block.timestamp + numberAfterStartDays), "Invalid Start Date");
+        require((block.timestamp + numberAfterStartDays * 1 days) > startTime, "Invalid Start Date");
 
 
-        uint daysDiff = (endTime - startTime);
+        uint daysDiff = (endTime - startTime) / 60 / 60 / 24;
         
         require(daysDiff <= timeDifference, "Time Difference Exceeded");
        
-        require(AirDrop(contractAddress).balanceOf(contractAddress) >= amount, "Insufficient Funds");
+        require(IERC20(contractAddress).balanceOf(msg.sender) >= amount, "Insufficient Funds");
 
         require(msg.value >= price, "Not enough Paid to List Token");
 
-        AirDrop(contractAddress).transferFrom(msg.sender, address(this), amount);
-
+        IERC20(contractAddress).transferFrom(msg.sender, address(this), amount);
+        
         airdropTokenAdmin[dropId] = msg.sender;
 
         AirDropToken memory airDrop = AirDropToken(

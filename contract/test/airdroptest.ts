@@ -163,40 +163,42 @@ describe("NotCrypto", async () => {
 
  
 
-    //     describe("AirDrop Distribution", async function () {
-    //         it("should fail when airDrop is cancelled", async function () {
+        describe("AirDrop Distribution", async function () {
+            it("should fail when airDrop is cancelled", async function () {
                
-    //             let start = Math.floor(Date.now()  + 10)
+                let start = Math.floor(Date.now()  + 10)
 
-    //             let end = Math.floor(Date.now() + 25)
+                let end = Math.floor(Date.now() + 25)
 
-    //             console.log(Date);
+                console.log(Date);
 
-    //             console.log(end.toLocaleString());
+                console.log(end.toLocaleString());
 
-    //             const dropId = await notDrop.createAirDropToken(
-    //                 10,
-    //                 100,
-    //                 tokenAddress,
-    //                 AirDropType.LOTTERY,
-    //                 start,
-    //                 end,
-    //                 tokenAddress,
-    //                 1,
-    //                 AirDropRequirement.NFT_REQUIRED
-    //             )
+                const dropId = await notDrop.createAirDropToken(
+                    5,
+                    200,
+                    '0x94f94036451a1bc628DE41D35Fa86D68F05Ab43c',
+                    0,
+                    1651622400,
+                    1651968000,
+                    '0x0000000000000000000000000000000000000000',
+                    0,
+                    0,
+                    1
+                )
                 
-    //             await notDrop.cancelAirDrop(
-    //                 dropId.value,
-    //                 tokenAddress
-    //             )
+                // await notDrop.cancelAirDrop(
+                //     dropId.value,
+                //     tokenAddress
+                // )
 
-    //             const result = await notDrop.airDropTokens(
-    //                 [addressOne, addressTwo], tokenAddress, 1, 2
-    //             )
+                // const result = await notDrop.airDropTokens(
+                //     [addressOne, addressTwo], tokenAddress, 1, 2
+                // )
 
-    //             expect(result).to.be.revertedWith("AirDrop Has Been Cancelled");
-    //         })
+                // expect(result).to.be.revertedWith("AirDrop Has Been Cancelled");
+            })
+        })
 
     //         it("should fail when recepient does not have enough token", async function () {
                 

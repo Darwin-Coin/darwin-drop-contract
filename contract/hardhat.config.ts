@@ -40,6 +40,9 @@ const config: HardhatUserConfig = {
     },
     networks: {
         hardhat: {
+            forking: {
+                url: "https://data-seed-prebsc-1-s1.binance.org:8545",
+              },
             loggingEnabled: false,
             gasMultiplier: 0.1,
             accounts: {
@@ -50,6 +53,7 @@ const config: HardhatUserConfig = {
         },
         bscTestNet: {
             loggingEnabled : true,
+            gasPrice: 35000000000,
             url: "https://data-seed-prebsc-1-s1.binance.org:8545",
             accounts: {
                 mnemonic: String(process.env.TEST_MNEMONICS),
@@ -58,7 +62,9 @@ const config: HardhatUserConfig = {
             }
         },
     },
-
+    mocha: {
+        timeout: 400000
+    }
 
     
 };

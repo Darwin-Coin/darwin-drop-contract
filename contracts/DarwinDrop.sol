@@ -3,17 +3,12 @@ pragma solidity ^0.8.4;
 // SPDX-License-Identifier: Unlicensed
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
-
 import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 
-contract NotDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
-    using SafeMathUpgradeable for uint256;
+contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
     using AddressUpgradeable for address;
 
     enum AirDropType {
@@ -25,25 +20,16 @@ contract NotDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
     enum AirDropRequirement {
         TOKEN_REQUIRED,
         NFT_REQUIRED,
-        PASSWORD
+        PASSWORD,
+        NONE
     }
-
-    uint256 public price;
-
-    uint256 public airDropId;
-
-    uint256 public numberAfterStartDays;
-
-    uint256 public timeDifference;
-
-    address public NotCommunityAddress;
 
     struct AirDropToken {
         address contractAddress;
         uint256 amount;
         AirDropType airDropType;
-        uint startTime;
-        uint endTime;
+        uint256 startTime;
+        uint256 endTime;
         uint256 id;
         uint256 maxNumber;
         address requirementAddress;
@@ -52,16 +38,23 @@ contract NotDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
     }
 
     modifier onlyNotCommunity() {
-        require(msg.sender == NotCommunityAddress, "Unauthorized");
+        require(msg.sender == NotCommunityAddress, "DD::onlyNotCommunity: Unauthorized");
 
         _;
     }
 
-    modifier onlyAdmin(uint256 _id) {
-        require(airdropTokenAdmin[_id] == msg.sender, "Unauthorized");
+    modifier onlyAirdropOwner(uint256 _airdropId) {
+        require(airdropTokenAdmin[_airdropId] == msg.sender, "DD::onlyAirdropOwner: Unauthorized");
 
         _;
     }
+
+    uint256 public airdropCreationPriceEth;
+    uint256 public lastAirdropId;
+    uint256 public maxDelayForAirdropStart;
+    uint256 public maxAirdropDuration;
+
+    address public NotCommunityAddress;
 
     //checks whether specific airdop has been administered to the user
     mapping(uint256 => address) public addressToAirDrop;
@@ -92,10 +85,12 @@ contract NotDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
 
     function __NotDrop_init_unchained(address _NotCommunity) private onlyInitializing {
         NotCommunityAddress = _NotCommunity;
-        price = 0.1371442 ether;
-        airDropId = 0;
-        numberAfterStartDays = 15;
-        timeDifference = 10;
+
+        airdropCreationPriceEth = 0.1 ether;
+
+        lastAirdropId = 0;
+        maxDelayForAirdropStart = 15 days;
+        maxAirdropDuration = 10 days;
     }
 
     //creates AirDropToken
@@ -104,8 +99,7 @@ contract NotDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
         address tokenAddress,
         uint256 _id,
         uint256 _totalParticipants
-    ) public onlyAdmin(_id) returns (bool) {
-        
+    ) public onlyAirdropOwner(_id) returns (bool) {
         require(cancelledAirDrop[_id] != tokenAddress, "AirDrop Has Been Cancelled");
 
         AirDropToken memory drop = airDropObject[_id];
@@ -125,8 +119,6 @@ contract NotDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
 
             require(addressToAirDrop[_id] != _recipient[i], "User Has Already Gotten this Drop!");
 
-           
-
             IERC20(tokenAddress).transfer(_recipient[i], drop.amount / _totalParticipants);
 
             emit TokenClaimed(_recipient[i], tokenAddress);
@@ -136,7 +128,6 @@ contract NotDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
     }
 
     function cancelAirDrop(uint256 id, address tokenAddress) public {
-        
         require(airdropTokenAdmin[id] == msg.sender || NotCommunityAddress == msg.sender, "Unauthorized");
 
         AirDropToken memory drop = airDropObject[id];
@@ -159,19 +150,19 @@ contract NotDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
     }
 
     function setPrice(uint256 _price) public onlyNotCommunity {
-        price = _price;
+        airdropCreationPriceEth = _price;
     }
 
     function setNotCommunityAddress(address _NotCommunityAddress) public onlyNotCommunity {
         NotCommunityAddress = _NotCommunityAddress;
     }
 
-    function setDaysAfterStart(uint256 _number) public onlyNotCommunity {
-        numberAfterStartDays = _number;
+    function setMaxDelayForAirdropStart(uint256 _number) public onlyNotCommunity {
+        maxDelayForAirdropStart = _number;
     }
 
     function setDaysDifference(uint256 _difference) public onlyNotCommunity {
-        timeDifference = _difference;
+        maxAirdropDuration = _difference;
     }
 
     function getAirDropDetails(uint256 _id) public view returns (AirDropToken memory) {
@@ -183,30 +174,29 @@ contract NotDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
         uint256 amount,
         address contractAddress,
         AirDropType _type,
-        uint startTime,
-        uint endTime,
+        uint256 startTime,
+        uint256 endTime,
         address requirementAddress,
         uint256 minimumAmount,
         AirDropRequirement requirement,
         uint256 dropDetailsId
     ) public payable returns (uint256) {
-        uint256 dropId = airDropId++;
- 
+        uint256 dropId = lastAirdropId++;
+
         require(endTime >= block.timestamp, "Invalid End Date");
 
-        require((block.timestamp + numberAfterStartDays * 1 days) > startTime, "Invalid Start Date");
+        require((block.timestamp + maxDelayForAirdropStart * 1 days) > startTime, "Invalid Start Date");
 
+        uint256 daysDiff = (endTime - startTime) / 60 / 60 / 24;
 
-        uint daysDiff = (endTime - startTime) / 60 / 60 / 24;
-        
-        require(daysDiff <= timeDifference, "Time Difference Exceeded");
-       
+        require(daysDiff <= maxAirdropDuration, "Time Difference Exceeded");
+
         require(IERC20(contractAddress).balanceOf(msg.sender) >= amount, "Insufficient Funds");
 
-        require(msg.value >= price, "Not enough Paid to List Token");
+        require(msg.value >= airdropCreationPriceEth, "Not enough Paid to List Token");
 
         IERC20(contractAddress).transferFrom(msg.sender, address(this), amount);
-        
+
         airdropTokenAdmin[dropId] = msg.sender;
 
         AirDropToken memory airDrop = AirDropToken(

@@ -1,17 +1,17 @@
 import * as dotenv from "dotenv";
 
-import { HardhatUserConfig, task } from "hardhat/config";
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
+import { HardhatUserConfig, task } from "hardhat/config";
 import "solidity-coverage";
-import "hardhat-gas-reporter";
 
-require('@openzeppelin/hardhat-upgrades');
+import { } from '@openzeppelin/hardhat-upgrades';
+
+require('@openzeppelin/hardhat-upgrades')
 
 dotenv.config();
-
 
 
 // This is a sample Hardhat task. To learn how to create your own go to
@@ -41,6 +41,7 @@ const config: HardhatUserConfig = {
     networks: {
         hardhat: {
             forking: {
+                enabled:false,
                 url: "https://data-seed-prebsc-1-s1.binance.org:8545",
               },
             loggingEnabled: false,

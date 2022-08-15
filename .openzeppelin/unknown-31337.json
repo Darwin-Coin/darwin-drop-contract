@@ -1,0 +1,324 @@
+{
+  "manifestVersion": "3.2",
+  "admin": {
+    "address": "0x6A52c89d9AEB3E581c1b99a1B7090a5d5E25a059",
+    "txHash": "0xc4e26c979282e81c9f4abe353ae79f09137b8a1de6c0b3e39e01badac0479ae8"
+  },
+  "proxies": [
+    {
+      "address": "0xCe8688ACB75A8909cF12ee9BC2DE611b2cAA7Dc5",
+      "txHash": "0xa15c4198756e0b8dd8bd44ea48fcf50c329d080fe681bc5ba41a624977beaaeb",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "04737e7dadfa2aa8bc54dba79ff2343f8bf177e65d8d30b83c6ecd98b798a7bb": {
+      "address": "0x94e4F3276eF3db51436738930eCB917b6Ee00Dd0",
+      "txHash": "0x47203a9f900e8f09f70506f50198ae0b0f8a17fcb52ba0254badda65e04b97ce",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:39"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:44"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:87"
+          },
+          {
+            "label": "airdropCreationPriceEth",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_uint256",
+            "contract": "DarwinDrop",
+            "src": "contracts/DarwinDrop.sol:87"
+          },
+          {
+            "label": "airdropPromotionPriceEth",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_uint256",
+            "contract": "DarwinDrop",
+            "src": "contracts/DarwinDrop.sol:88"
+          },
+          {
+            "label": "lastAirdropId",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_uint256",
+            "contract": "DarwinDrop",
+            "src": "contracts/DarwinDrop.sol:89"
+          },
+          {
+            "label": "maxDelayForAirdropStart",
+            "offset": 0,
+            "slot": "104",
+            "type": "t_uint256",
+            "contract": "DarwinDrop",
+            "src": "contracts/DarwinDrop.sol:90"
+          },
+          {
+            "label": "maxAirdropDuration",
+            "offset": 0,
+            "slot": "105",
+            "type": "t_uint256",
+            "contract": "DarwinDrop",
+            "src": "contracts/DarwinDrop.sol:91"
+          },
+          {
+            "label": "darwinCommunityAddress",
+            "offset": 0,
+            "slot": "106",
+            "type": "t_address",
+            "contract": "DarwinDrop",
+            "src": "contracts/DarwinDrop.sol:93"
+          },
+          {
+            "label": "airdropRecepients",
+            "offset": 0,
+            "slot": "107",
+            "type": "t_mapping(t_uint256,t_address)",
+            "contract": "DarwinDrop",
+            "src": "contracts/DarwinDrop.sol:96"
+          },
+          {
+            "label": "airdrops",
+            "offset": 0,
+            "slot": "108",
+            "type": "t_mapping(t_uint256,t_struct(AirDrop)1596_storage)",
+            "contract": "DarwinDrop",
+            "src": "contracts/DarwinDrop.sol:97"
+          },
+          {
+            "label": "airdropMeta",
+            "offset": 0,
+            "slot": "109",
+            "type": "t_mapping(t_uint256,t_struct(AirdropMeta)1608_storage)",
+            "contract": "DarwinDrop",
+            "src": "contracts/DarwinDrop.sol:98"
+          },
+          {
+            "label": "pendingWithdrawals",
+            "offset": 0,
+            "slot": "110",
+            "type": "t_mapping(t_address,t_uint256)",
+            "contract": "DarwinDrop",
+            "src": "contracts/DarwinDrop.sol:100"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_enum(AirDropRequirementType)1565": {
+            "label": "enum DarwinDrop.AirDropRequirementType",
+            "members": [
+              "TOKEN_REQUIRED",
+              "NFT_REQUIRED",
+              "PASSWORD",
+              "NONE"
+            ],
+            "numberOfBytes": "1"
+          },
+          "t_enum(AirDropType)1560": {
+            "label": "enum DarwinDrop.AirDropType",
+            "members": [
+              "LOTTERY",
+              "USER_LIMITED",
+              "TOKEN_LIMITED"
+            ],
+            "numberOfBytes": "1"
+          },
+          "t_enum(AirdropStatus)1569": {
+            "label": "enum DarwinDrop.AirdropStatus",
+            "members": [
+              "ACTIVE",
+              "CANCELLED",
+              "TOKEN_DISTRIBUTED"
+            ],
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_address)": {
+            "label": "mapping(uint256 => address)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(AirDrop)1596_storage)": {
+            "label": "mapping(uint256 => struct DarwinDrop.AirDrop)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(AirdropMeta)1608_storage)": {
+            "label": "mapping(uint256 => struct DarwinDrop.AirdropMeta)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(AirDrop)1596_storage": {
+            "label": "struct DarwinDrop.AirDrop",
+            "members": [
+              {
+                "label": "id",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "airdropOwner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "airdropTokenAddress",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "airdropTokenAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "tokensPerUser",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "startTime",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "5"
+              },
+              {
+                "label": "endTime",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "6"
+              },
+              {
+                "label": "airdropMaxParticipants",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "7"
+              },
+              {
+                "label": "requirementTokenAddress",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "8"
+              },
+              {
+                "label": "requirementTokenAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "9"
+              },
+              {
+                "label": "airDropType",
+                "type": "t_enum(AirDropType)1560",
+                "offset": 0,
+                "slot": "10"
+              },
+              {
+                "label": "requirementType",
+                "type": "t_enum(AirDropRequirementType)1565",
+                "offset": 1,
+                "slot": "10"
+              }
+            ],
+            "numberOfBytes": "352"
+          },
+          "t_struct(AirdropMeta)1608_storage": {
+            "label": "struct DarwinDrop.AirdropMeta",
+            "members": [
+              {
+                "label": "ethSpent",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "distributedTokens",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "ownerWithdrawnTokens",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "isPromoted",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "status",
+                "type": "t_enum(AirdropStatus)1569",
+                "offset": 1,
+                "slot": "3"
+              }
+            ],
+            "numberOfBytes": "128"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          }
+        }
+      }
+    }
+  }
+}

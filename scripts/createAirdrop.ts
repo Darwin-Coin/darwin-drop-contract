@@ -9,8 +9,8 @@ async function main() {
     const [owner, ...accounts] = await ethers.getSigners();
 
     // Deploy contract with the correct constructor arguments
-    const darwinDrop = DarwinDrop__factory.connect("0x4A119c9875b25aAedaA9f3c1ceaD8dEFE7474b47", owner)
-    const token = TestErc20Token__factory.connect("0x426F6F9e2339f614c4f13B551d74AA2401032dAC",owner) as TestErc20Token
+    const darwinDrop = DarwinDrop__factory.connect("0xE59628178994E4B533Ec361907d08c2f9a107E2E", owner)
+    const token = TestErc20Token__factory.connect("0x923A995a5617259DbdB7f5472b3267F67085e746",owner) as TestErc20Token
 
     const tokensToAirdrop  = 100;
 
@@ -32,7 +32,7 @@ async function main() {
         requirementTokenAmount: 0,
         isPromoted:false,
         airDropType: AirDropType.LOTTERY,
-        requirementType: AirDropRequirementType.NONE
+        requirementType: AirDropRequirementType.PASSWORD
        },
        1,
     

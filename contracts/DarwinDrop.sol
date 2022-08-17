@@ -12,9 +12,8 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
     using AddressUpgradeable for address;
 
     event AirDropCreated(AirDrop airdrop, AirdropMeta meta, address indexed creatorAddress, uint256 dropId, uint256 dropDetailsId);
-    event TokenClaimed(address indexed claimer, address indexed airdropTokenAddress, uint256 amount);
-    event AirdropCancelled(uint256 id, address tokenAddress, address canceller);
-    event AirdropDistributed(uint256 id, address tokenAddress);
+    event AirdropCancelled(uint256 id, address canceller);
+    event AirdropDistributed(uint256 id, uint256 totalAmount, uint256 totalRecepients, address[] recepients);
 
     enum AirDropType {
         LOTTERY,
@@ -53,6 +52,7 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
     struct AirdropMeta {
         uint256 ethSpent;
         uint256 distributedTokens;
+        uint256 recepientCount;
         uint256 ownerWithdrawnTokens;
         bool isPromoted;
         AirdropStatus status;
@@ -146,15 +146,16 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
             require(airdropRecepients[_id] != _recipient[i], "DD::airDropTokens: user has already got this drop!");
 
             IERC20(drop.airdropTokenAddress).transfer(_recipient[i], airdropAmount);
-
-            emit TokenClaimed(_recipient[i], drop.airdropTokenAddress, airdropAmount);
         }
 
         meta.status = AirdropStatus.TOKEN_DISTRIBUTED;
         meta.distributedTokens += _recipient.length * airdropAmount;
+        meta.recepientCount += _recipient.length;
+
+        emit AirdropDistributed(_id, meta.distributedTokens, meta.recepientCount, _recipient);
     }
 
-    function cancelAirDrop(uint256 id, address tokenAddress) public {
+    function cancelAirDrop(uint256 id) public {
         AirDrop memory drop = airdrops[id];
         AirdropMeta storage meta = airdropMeta[id];
 
@@ -173,7 +174,7 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
             payable(msg.sender).transfer(meta.ethSpent);
         }
 
-        emit AirdropCancelled(id, tokenAddress, msg.sender);
+        emit AirdropCancelled(id, msg.sender);
     }
 
     function withdrawRemainingTokens(uint256 _id) public onlyAirdropOwner(_id) {
@@ -216,6 +217,7 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
         airdropMeta[dropId] = AirdropMeta({
             ethSpent: ethSpent,
             distributedTokens: 0,
+            recepientCount: 0,
             ownerWithdrawnTokens: 0,
             isPromoted: params.isPromoted,
             status: AirdropStatus.ACTIVE

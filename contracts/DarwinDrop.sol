@@ -11,7 +11,7 @@ import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
     using AddressUpgradeable for address;
 
-    event AirDropCreated(AirDrop token, address indexed creatorAddress, uint256 dropId, uint256 dropDetailsId);
+    event AirDropCreated(AirDrop airdrop, AirdropMeta meta, address indexed creatorAddress, uint256 dropId, uint256 dropDetailsId);
     event TokenClaimed(address indexed claimer, address indexed airdropTokenAddress, uint256 amount);
     event AirdropCancelled(uint256 id, address tokenAddress, address canceller);
     event AirdropDistributed(uint256 id, address tokenAddress);
@@ -204,8 +204,8 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
         maxAirdropDuration = _difference;
     }
 
-    function getAirDropDetails(uint256 _id) public view returns (AirDrop memory) {
-        return airdrops[_id];
+    function getAirDropDetails(uint256 _id) public view returns (AirDrop memory, AirdropMeta memory) {
+        return (airdrops[_id], airdropMeta[_id]);
     }
 
     function createAirdropMeta(
@@ -260,7 +260,7 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
             payable(msg.sender).transfer(msg.value - ethSpent);
         }
 
-        emit AirDropCreated(airDrop, msg.sender, dropId, dropDetailsId);
+        emit AirDropCreated(airDrop, airdropMeta[dropId], msg.sender, dropId, dropDetailsId);
 
         return dropId;
     }

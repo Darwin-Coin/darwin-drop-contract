@@ -1,22 +1,30 @@
 import { ethers, upgrades } from "hardhat";
+import { TestErc20Token } from "../typechain";
 
 
 async function main() {
     
     const DarwinDrop = await ethers.getContractFactory("DarwinDrop");
+    const Token = await ethers.getContractFactory("TestErc20Token");
 
+    const [owner, ...accounts] = await ethers.getSigners();
 
     // Deploy contract with the correct constructor arguments
-    const contract = await upgrades.deployProxy(DarwinDrop, ["0xe9Fd06F179160Fa975432C20c5704347A6d80568"]);
-
-    // Get contract address
-    console.log("Deploying Contract");
+    const contract = await upgrades.deployProxy(DarwinDrop, [owner.address]);
 
     // Wait for this transaction to be mined
     await contract.deployed();
 
     // Get contract address
     console.log("DarwinDrop deployed to:", contract.address);
+
+    const token = await Token.deploy() as TestErc20Token
+
+    // Wait for this transaction to be mined
+    await token.deployed();
+
+    console.log("Token Deployed at:", token.address);
+
 }
 
 main()

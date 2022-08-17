@@ -56,13 +56,16 @@ describe("NotCrypto", async () => {
                },
                1,
             
+            {
+                value: ethers.utils.parseEther(".1")
+            }
             )
 
             await expect(result).to.be.revertedWith("DD::createAirdrop: invalid end date");
 
         })
 
-        it.only("should fail when someone sets Start date too early", async function () {
+        it("should fail when someone sets Start date too early", async function () {
 
 
             let now =  Math.floor((new Date().getDate()) / 1000);
@@ -86,6 +89,39 @@ describe("NotCrypto", async () => {
                1,
             
             )
+
+        })
+
+        it.only("should success on valid data", async function () {
+
+            const tokensToAirdrop  = 100;
+
+            await token.approve(darwinDrop.address, tokensToAirdrop)
+        
+            let now = Math.floor(Date.now() / 1000)
+        
+            const tnx = await darwinDrop.createAirdrop(
+               {
+                airdropTokenAddress: token.address,
+                airdropTokenAmount: tokensToAirdrop,
+                tokensPerUser: 0,
+                startTime: now,
+                endTime: now + 12000,
+                airdropMaxParticipants: BigNumber.from(10 ** 8),
+                requirementTokenAddress: ethers.constants.AddressZero,
+                requirementTokenAmount: 0,
+                isPromoted:false,
+                airDropType: AirDropType.LOTTERY,
+                requirementType: AirDropRequirementType.NONE
+               },
+               1,
+            
+            {
+                value: ethers.utils.parseEther(".1")
+            }
+        )
+
+        console.log(await tnx.wait())
 
         })
 

@@ -9,8 +9,8 @@ async function main() {
     const [owner, ...accounts] = await ethers.getSigners();
 
     // Deploy contract with the correct constructor arguments
-    const darwinDrop = DarwinDrop__factory.connect("0xE59628178994E4B533Ec361907d08c2f9a107E2E", owner)
-    const token = TestErc20Token__factory.connect("0x923A995a5617259DbdB7f5472b3267F67085e746",owner) as TestErc20Token
+    const darwinDrop = DarwinDrop__factory.connect("0xfb752888bb1175f49e02899b36b9805bF2B9504d", owner)
+    const token = TestErc20Token__factory.connect("0xE3750C0062979b91499D4B74F3a3329566E6401C",owner) as TestErc20Token
 
     const tokensToAirdrop  = 100;
 
@@ -18,31 +18,27 @@ async function main() {
 
     let now = Math.floor(Date.now() / 1000)
 
-    console.log(now)
-
     const tnx = await darwinDrop.createAirdrop(
        {
         airdropTokenAddress: token.address,
         airdropTokenAmount: tokensToAirdrop,
         tokensPerUser: 0,
         startTime: now,
-        endTime: now + 12000,
+        endTime: now + 1200000,
         airdropMaxParticipants: BigNumber.from(10 ** 8),
-        requirementTokenAddress: ethers.constants.AddressZero,
-        requirementTokenAmount: 0,
+        requirementTokenAddress:token.address ,// ethers.constants.AddressZero,
+        requirementTokenAmount: 1,
         isPromoted:false,
         airDropType: AirDropType.LOTTERY,
-        requirementType: AirDropRequirementType.PASSWORD
+        requirementType: AirDropRequirementType.NFT_REQUIRED
        },
-       1,
-    
+       4,
     {
         value: ethers.utils.parseEther(".5")
     }
     )
 
-  const log =  await tnx.wait()
-
+    const log =  await tnx.wait()
 
     console.log(log);
 

@@ -92,12 +92,8 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
 
     address public darwinCommunityAddress;
 
-    //checks whether specific airdop has been administered to the user
-    mapping(uint256 => address) public airdropRecepients;
     mapping(uint256 => AirDrop) public airdrops;
     mapping(uint256 => AirdropMeta) public airdropMeta;
-
-    mapping(address => uint256) public pendingWithdrawals;
 
     function initialize(address _NotCommunity) public initializer {
         __Context_init_unchained();
@@ -116,41 +112,46 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
     }
 
     //distribute tokens to participants
-    function airDropTokens(
-        address[] calldata _recipient,
-        uint256 _id,
-        uint256 _totalParticipants
-    ) public onlyAirdropOwner(_id) {
+    function airDropTokens(address[] calldata _recipient, uint256 _id) public onlyAirdropOwner(_id) {
         AirdropMeta storage meta = airdropMeta[_id];
 
-        require(meta.status != AirdropStatus.CANCELLED, "DD::airDropTokens: airDrop has been cancelled");
+        require(meta.status == AirdropStatus.ACTIVE, "DD::airDropTokens: airDrop is not active");
 
         AirDrop memory drop = airdrops[_id];
 
-        require(_recipient.length <= drop.airdropMaxParticipants && _totalParticipants <= drop.airdropMaxParticipants, "DD::airDropTokens: airDrop is full");
+        require(_recipient.length <= drop.airdropMaxParticipants, "DD::airDropTokens: airDrop is full");
 
         require(drop.endTime <= block.timestamp, "DD::airDropTokens:AirDrop is still active");
 
-        uint256 airdropAmount = drop.airDropType == AirDropType.TOKEN_LIMITED ? drop.tokensPerUser : drop.airdropTokenAmount / _totalParticipants;
+        uint256 airdropAmount = drop.airDropType == AirDropType.TOKEN_LIMITED ? drop.tokensPerUser : drop.airdropTokenAmount / _recipient.length;
 
-        for (uint256 i = 0; i < _recipient.length; i++) {
-            if (drop.requirementType == AirDropRequirementType.TOKEN_REQUIRED) {
-                require(
-                    IERC20(drop.requirementTokenAddress).balanceOf(_recipient[i]) >= drop.requirementTokenAmount,
-                    "DD::airDropTokens: Recepient does have requirement tokens"
-                );
-            } else if (drop.requirementType == AirDropRequirementType.NFT_REQUIRED) {
-                require(IERC20(drop.requirementTokenAddress).balanceOf(_recipient[i]) >= 1, "DD::airDropTokens: Recepient does have requirement tokens");
+        bool[] memory airdropReceived = new bool[](_recipient.length);
+        uint256 usersNotReceivingTokens = 0;
+
+        for (uint256 i = 0; i < _recipient.length; ) {
+            if (drop.requirementType == AirDropRequirementType.TOKEN_REQUIRED || drop.requirementType == AirDropRequirementType.NFT_REQUIRED) {
+                if (IERC20(drop.requirementTokenAddress).balanceOf(_recipient[i]) < drop.requirementTokenAmount) {
+                    airdropReceived[i] = false;
+                    unchecked {
+                        ++i;
+                        ++usersNotReceivingTokens;
+                    }
+                    continue;
+                }
             }
 
-            require(airdropRecepients[_id] != _recipient[i], "DD::airDropTokens: user has already got this drop!");
-
             IERC20(drop.airdropTokenAddress).transfer(_recipient[i], airdropAmount);
+
+            airdropReceived[i] = true;
+
+            unchecked {
+                ++i;
+            }
         }
 
         meta.status = AirdropStatus.TOKEN_DISTRIBUTED;
-        meta.distributedTokens += _recipient.length * airdropAmount;
-        meta.recepientCount += _recipient.length;
+        meta.distributedTokens += (_recipient.length - usersNotReceivingTokens) * airdropAmount;
+        meta.recepientCount += (_recipient.length - usersNotReceivingTokens);
 
         emit AirdropDistributed(_id, meta.distributedTokens, meta.recepientCount, _recipient);
     }

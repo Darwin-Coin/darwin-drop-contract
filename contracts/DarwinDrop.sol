@@ -34,6 +34,8 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
         TOKEN_DISTRIBUTED
     }
 
+    ///@notice is the id necessary, as it is already stored in the airdrops mapping based on this id
+    /// There could be some struct stacking to save gas if desired
     struct AirDrop {
         uint256 id;
         address airdropOwner;
@@ -58,6 +60,7 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
         AirdropStatus status;
     }
 
+    ///@notice I would remove this if you choose to you my example functions
     struct CreateAirDropParams {
         address airdropTokenAddress;
         uint256 airdropTokenAmount;
@@ -72,6 +75,7 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
         AirDropRequirementType requirementType;
     }
 
+    ///@notice why is this "not" community, seems like it is
     modifier onlyNotCommunity() {
         require(msg.sender == darwinCommunityAddress, "DD::onlyNotCommunity: Unauthorized");
 
@@ -80,7 +84,6 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
 
     modifier onlyAirdropOwner(uint256 _airdropId) {
         require(airdrops[_airdropId].airdropOwner == msg.sender, "DD::onlyAirdropOwner: Unauthorized");
-
         _;
     }
 
@@ -101,17 +104,21 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
         __NotDrop_init_unchained(_NotCommunity);
     }
 
+    ///@notice consider changing _NotCommunity to _Community, as it seems like this is the community address
     function __NotDrop_init_unchained(address _NotCommunity) private onlyInitializing {
         darwinCommunityAddress = _NotCommunity;
 
         airdropCreationPriceEth = 0.1 ether;
 
+        ///@notice this is unnecessary, as value is already set to zero, but no need to remove
         lastAirdropId = 0;
         maxDelayForAirdropStart = 15 days;
         maxAirdropDuration = 20 days;
     }
 
     //distribute tokens to participants
+    ///@notice should have a reentrancy guard as external transfers are occuring before all data is updated, or structure where transfers occur after updates   
+    /// what to do in the event of a user not recieving tokens?
     function airDropTokens(address[] calldata _recipient, uint256 _id) public onlyAirdropOwner(_id) {
         AirdropMeta storage meta = airdropMeta[_id];
 
@@ -125,12 +132,15 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
 
         uint256 airdropAmount = drop.airDropType == AirDropType.TOKEN_LIMITED ? drop.tokensPerUser : drop.airdropTokenAmount / _recipient.length;
 
+        ///@notice this is never used, only set, consider removing or setting
         bool[] memory airdropReceived = new bool[](_recipient.length);
         uint256 usersNotReceivingTokens = 0;
 
         for (uint256 i = 0; i < _recipient.length; ) {
             if (drop.requirementType == AirDropRequirementType.TOKEN_REQUIRED || drop.requirementType == AirDropRequirementType.NFT_REQUIRED) {
                 if (IERC20(drop.requirementTokenAddress).balanceOf(_recipient[i]) < drop.requirementTokenAmount) {
+                    
+                    ///consider removing
                     airdropReceived[i] = false;
                     unchecked {
                         ++i;
@@ -142,6 +152,7 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
 
             IERC20(drop.airdropTokenAddress).transfer(_recipient[i], airdropAmount);
 
+            ///consider removing
             airdropReceived[i] = true;
 
             unchecked {
@@ -151,6 +162,7 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
 
         meta.status = AirdropStatus.TOKEN_DISTRIBUTED;
         meta.distributedTokens += (_recipient.length - usersNotReceivingTokens) * airdropAmount;
+        ///@notice this is set but never used in this contract, may be useful to see, but the event emitting it may be good enough, id consider just emitting it and not storing
         meta.recepientCount += (_recipient.length - usersNotReceivingTokens);
 
         emit AirdropDistributed(_id, meta.distributedTokens, meta.recepientCount, _recipient);
@@ -172,6 +184,9 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
         IERC20(drop.airdropTokenAddress).transfer(msg.sender, drop.airdropTokenAmount);
 
         if (address(this).balance >= meta.ethSpent) {
+            ///@notice consider replacing with code below as it is most likely to not depreciate and can handle recieve fallback function logic that takes more gas:
+            /// (bool success, ) = msg.sender.call{value : meta.ethSpent}("");
+            /// require(success, "Eth transfer failed");
             payable(msg.sender).transfer(meta.ethSpent);
         }
 
@@ -225,6 +240,10 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
         });
     }
 
+    ///@notice what is the "dropDetailsId" used for besides being emitted from the event? The user can currently enter anything
+    /// id suggest not using a new struct for the initialization
+    /// because this is public, a user has to enter a specific complex object into this function, so I assume there will be a frontend to supply this?
+    /// below I have implemented my own version that contains notes of the changes, feel free to implement what you will from that
     function createAirdrop(CreateAirDropParams calldata params, uint256 dropDetailsId) public payable returns (uint256) {
         uint256 dropId = lastAirdropId++;
 
@@ -267,4 +286,70 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
 
         return dropId;
     }
+
+    ///@notice example function mentioned above, id suggest using this and "createAirdropMetaExample" but removing the example from the name
+    function createAirdropExample(AirDrop calldata params, uint256 dropDetailsId, bool isPromoted) public payable returns (uint256) {
+        uint256 dropId = lastAirdropId++;
+
+        require(params.endTime >= block.timestamp, "DD::createAirdrop: invalid end date");
+
+        require((block.timestamp + maxDelayForAirdropStart) > params.startTime, "DD::createAirdrop: too late start time");
+
+        require(params.endTime - params.startTime <= maxAirdropDuration, "DD::createAirdrop: large airdrop duration");
+
+        uint256 ethSpent = isPromoted ? airdropCreationPriceEth + airdropPromotionPriceEth : airdropCreationPriceEth;
+
+        require(msg.value >= ethSpent, "DD::createAirdrop: not enough base token sent");
+
+        AirDrop memory airDrop = AirDrop({
+            id: dropId,
+            airdropOwner: msg.sender,
+            airdropTokenAddress: params.airdropTokenAddress,
+            airdropTokenAmount: params.airdropTokenAmount,
+            tokensPerUser: params.tokensPerUser,
+            startTime: params.startTime,
+            endTime: params.endTime,
+            airdropMaxParticipants: params.airdropMaxParticipants,
+            requirementTokenAddress: params.requirementTokenAddress,
+            requirementTokenAmount: params.requirementTokenAmount,
+            airDropType: params.airDropType,
+            requirementType: params.requirementType
+        });
+
+        airdrops[dropId] = airDrop;
+
+        ///@notice this function was made to work with the example
+        createAirdropMetaExample(dropId, ethSpent, isPromoted);
+
+        if (msg.value > ethSpent) {
+            ///@notice updated this eth transfer to more accepted method
+            (bool success, ) = msg.sender.call{value : msg.value - ethSpent}("");
+            require(success, "DD::createAirdrop: Eth transfer failed");
+        }
+
+        ///@notice moved this below state changes to prevent reentrancy
+        IERC20(params.airdropTokenAddress).transferFrom(msg.sender, address(this), params.airdropTokenAmount);
+
+        ///@notice could save some gas by 
+        emit AirDropCreated(airDrop, airdropMeta[dropId], msg.sender, dropId, dropDetailsId);
+
+        return dropId;
+    }
+
+    ///@notice this function was created to work with the example
+    function createAirdropMetaExample(
+        uint256 dropId,
+        uint256 ethSpent,
+        bool isPromoted
+    ) private {
+        airdropMeta[dropId] = AirdropMeta({
+            ethSpent: ethSpent,
+            distributedTokens: 0,
+            recepientCount: 0,
+            ownerWithdrawnTokens: 0,
+            isPromoted: isPromoted,
+            status: AirdropStatus.ACTIVE
+        });
+    }
+
 }

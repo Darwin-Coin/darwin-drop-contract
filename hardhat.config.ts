@@ -118,10 +118,16 @@ const config: HardhatUserConfig = {
             }
         },
         hardhat: {
-            loggingEnabled: false,
+            // loggingEnabled: false,
+            mining : {
+                auto:true,
+                interval : 1000
+            },
+            // initialBaseFeePerGas: 10,
             // gasMultiplier:1,
+            // gasPrice: 10,
             forking:{
-                enabled:false,
+                enabled:true,
                 url : "https://bsc-dataseed3.ninicoin.io/"
             },
             accounts: {

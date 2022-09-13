@@ -88,7 +88,6 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
     uint256 public airdropPromotionPriceEth;
     uint256 public lastAirdropId;
     uint256 public maxDelayForAirdropStart;
-    uint256 public maxAirdropDuration;
 
     address public darwinCommunityAddress;
 
@@ -105,10 +104,10 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
         darwinCommunityAddress = _NotCommunity;
 
         airdropCreationPriceEth = 0.1 ether;
+        airdropPromotionPriceEth = 1 ether;
 
         lastAirdropId = 0;
         maxDelayForAirdropStart = 15 days;
-        maxAirdropDuration = 20 days;
     }
 
     //distribute tokens to participants
@@ -121,7 +120,7 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
 
         require(_recipient.length <= drop.airdropMaxParticipants, "DD::airDropTokens: airDrop is full");
 
-        require(drop.endTime <= block.timestamp, "DD::airDropTokens:AirDrop is still active");
+        require(drop.endTime == 0 || drop.endTime <= block.timestamp, "DD::airDropTokens:AirDrop is still active");
 
         uint256 airdropAmount = drop.airDropType == AirDropType.TOKEN_LIMITED ? drop.tokensPerUser : drop.airdropTokenAmount / _recipient.length;
 
@@ -162,17 +161,27 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
 
         require(drop.airdropOwner == msg.sender || darwinCommunityAddress == msg.sender, "DD::cancelAirDrop: Unauthorized");
 
-        require(drop.endTime >= block.timestamp, "DD::cancelAirDrop: airDrop already ended");
+        require(drop.endTime == 0 || drop.endTime >= block.timestamp, "DD::cancelAirDrop: airDrop already ended");
 
-        require(meta.status == AirdropStatus.ACTIVE, "DD::cancelAirDrop: airDrop already cancelled");
+        require(meta.status == AirdropStatus.ACTIVE, "DD::cancelAirDrop: airDrop is not active");
 
-        meta.status = AirdropStatus.CANCELLED;
         meta.ownerWithdrawnTokens = drop.airdropTokenAmount;
 
-        IERC20(drop.airdropTokenAddress).transfer(msg.sender, drop.airdropTokenAmount);
+        IERC20(drop.airdropTokenAddress).transfer(drop.airdropOwner, drop.airdropTokenAmount);
 
-        if (address(this).balance >= meta.ethSpent) {
-            payable(msg.sender).transfer(meta.ethSpent);
+        _cancleAirdrop(id);
+    }
+
+    function _cancleAirdrop(uint256 id) private {
+        AirdropMeta storage meta = airdropMeta[id];
+        meta.status = AirdropStatus.CANCELLED;
+
+        if (meta.ethSpent > airdropCreationPriceEth) {
+            uint256 extraTokens = meta.ethSpent - airdropCreationPriceEth;
+
+            if (address(this).balance >= extraTokens) {
+                payable(airdrops[id].airdropOwner).transfer(extraTokens);
+            }
         }
 
         emit AirdropCancelled(id, msg.sender);
@@ -181,7 +190,11 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
     function withdrawRemainingTokens(uint256 _id) public onlyAirdropOwner(_id) {
         AirdropMeta storage meta = airdropMeta[_id];
 
-        require(meta.status != AirdropStatus.ACTIVE, "DD::cancelAirDrop: airDrop is active");
+        require(meta.status != AirdropStatus.CANCELLED, "DD::withdrawRemainingTokens: airdrop has been cancelled");
+
+        if (meta.status == AirdropStatus.ACTIVE) {
+            _cancleAirdrop(_id);
+        }
 
         uint256 remainingTokensAmount = airdrops[_id].airdropTokenAmount - meta.distributedTokens - meta.ownerWithdrawnTokens;
 
@@ -200,10 +213,6 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
 
     function setMaxDelayForAirdropStart(uint256 _number) public onlyNotCommunity {
         maxDelayForAirdropStart = _number;
-    }
-
-    function setMaxAirdropDuration(uint256 _difference) public onlyNotCommunity {
-        maxAirdropDuration = _difference;
     }
 
     function getAirDropDetails(uint256 _id) public view returns (AirDrop memory, AirdropMeta memory) {
@@ -228,11 +237,9 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
     function createAirdrop(CreateAirDropParams calldata params, uint256 dropDetailsId) public payable returns (uint256) {
         uint256 dropId = lastAirdropId++;
 
-        require(params.endTime >= block.timestamp, "DD::createAirdrop: invalid end date");
+        require(params.endTime == 0 || params.endTime >= block.timestamp, "DD::createAirdrop: invalid end date");
 
         require((block.timestamp + maxDelayForAirdropStart) > params.startTime, "DD::createAirdrop: too late start time");
-
-        require(params.endTime - params.startTime <= maxAirdropDuration, "DD::createAirdrop: large airdrop duration");
 
         uint256 ethSpent = params.isPromoted ? airdropCreationPriceEth + airdropPromotionPriceEth : airdropCreationPriceEth;
 

@@ -14,6 +14,7 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
     event AirDropCreated(AirDrop airdrop, AirdropMeta meta, address indexed creatorAddress, uint256 dropId, uint256 dropDetailsId);
     event AirdropCancelled(uint256 id, address canceller);
     event AirdropDistributed(uint256 id, uint256 totalAmount, uint256 totalRecepients, address[] recepients);
+    event AirdropEnded(uint256 id);
 
     enum AirDropType {
         LOTTERY,
@@ -201,6 +202,15 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
         meta.ownerWithdrawnTokens += remainingTokensAmount;
 
         IERC20(airdrops[_id].airdropTokenAddress).transfer(msg.sender, remainingTokensAmount);
+    }
+
+    function endAirDrop(uint256 _id) public onlyAirdropOwner(_id) {
+        require(airdropMeta[_id].status == AirdropStatus.ACTIVE, "DD::endAirDrop: Airdrop is not active");
+        require(airdrops[_id].endTime == 0, "DD::endAirDrop: Can't end airdrop with preddefined end time");
+
+        airdrops[_id].endTime = block.timestamp;
+
+        emit AirdropEnded(_id);
     }
 
     function setAirdropCreationPriceEth(uint256 _price) public onlyNotCommunity {

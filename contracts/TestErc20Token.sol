@@ -6,6 +6,10 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract TestErc20Token is ERC20 {
     constructor() ERC20("Darwin Drop Test Token", "DDTT") {
-        _mint(msg.sender, 25 * 10**decimals());
+        _mint(msg.sender, 2500000000 * 10**decimals());
+    }
+
+     function  decimals() public pure returns(uint256){
+        return 9;
     }
 }

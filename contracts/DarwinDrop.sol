@@ -13,7 +13,7 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
 
     event AirDropCreated(AirDrop airdrop, AirdropMeta meta, address indexed creatorAddress, uint256 dropId, uint256 dropDetailsId);
     event AirdropCancelled(uint256 id, address canceller);
-    event AirdropDistributed(uint256 id, uint256 totalAmount, uint256 totalRecepients, address[] recepients);
+    event AirdropDistributed(uint256 id, uint256 totalAmount, uint256 totalRecepients, address[] recepients, bool[] tokenReceived);
     event AirdropEnded(uint256 id);
 
     enum AirDropType {
@@ -153,7 +153,7 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
         meta.distributedTokens += (_recipient.length - usersNotReceivingTokens) * airdropAmount;
         meta.recepientCount += (_recipient.length - usersNotReceivingTokens);
 
-        emit AirdropDistributed(_id, meta.distributedTokens, meta.recepientCount, _recipient);
+        emit AirdropDistributed(_id, meta.distributedTokens, meta.recepientCount, _recipient, airdropReceived);
     }
 
     function cancelAirDrop(uint256 id) public {

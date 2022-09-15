@@ -9,7 +9,7 @@ contract TestErc20Token is ERC20 {
         _mint(msg.sender, 2500000000 * 10**decimals());
     }
 
-     function  decimals() public pure returns(uint256){
+    function decimals() public pure override returns (uint8) {
         return 9;
     }
 }

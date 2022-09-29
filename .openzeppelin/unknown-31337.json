@@ -1,40 +1,25 @@
 {
   "manifestVersion": "3.2",
   "admin": {
-    "address": "0x1277E1FaEfb22C760f466BAac48dE40a2Bfb75aE",
-    "txHash": "0xcd70d5e5539d2f4c9d7aa5700e38f71cb6ff42c0877a857fdb17d581dcccb9a1"
+    "address": "0xE59628178994E4B533Ec361907d08c2f9a107E2E",
+    "txHash": "0xfe89cbdf4a6c3366c2eb25574a4b1c779f4a2bfe66f3db8676140caea839c174"
   },
   "proxies": [
     {
-      "address": "0xCe8688ACB75A8909cF12ee9BC2DE611b2cAA7Dc5",
-      "txHash": "0xa15c4198756e0b8dd8bd44ea48fcf50c329d080fe681bc5ba41a624977beaaeb",
+      "address": "0x923A995a5617259DbdB7f5472b3267F67085e746",
+      "txHash": "0xc4ee5533d10d0298e29a01642a633515cb93548446e6812a48cda347a4c06d2b",
       "kind": "transparent"
     },
     {
-      "address": "0x4A119c9875b25aAedaA9f3c1ceaD8dEFE7474b47",
-      "txHash": "0x61e2589d9c6a74c8f47276722ee2a98e062a35e5d2fd768b3e8fb941f30d5195",
-      "kind": "transparent"
-    },
-    {
-      "address": "0xE59628178994E4B533Ec361907d08c2f9a107E2E",
-      "txHash": "0xc610471ae828c1f3d13de6fe756cc6929c0d4f97450e9ee00de10e03d2fcd5cf",
-      "kind": "transparent"
-    },
-    {
-      "address": "0x18a31D82E353f1D401A96307aa3f2182EB707Bf3",
-      "txHash": "0xb7cd968ea43d0a276d49892bee7be730f09a9ff3c89cf70f42823286b8014975",
-      "kind": "transparent"
-    },
-    {
-      "address": "0xCE6629ac82b1A95D49E3c16700E32b4F84862a6b",
-      "txHash": "0xcf0227f6f9d5bad94e5ab2a8987c4aac56d385419976f1a64759e22576652f07",
+      "address": "0xe71D0b5cb4258b06EEB33186496cFD1e8568106a",
+      "txHash": "0x510f4442c3ebbe59507d941e831b61699e23c139d04234a7aaa8835ef1530746",
       "kind": "transparent"
     }
   ],
   "impls": {
-    "04737e7dadfa2aa8bc54dba79ff2343f8bf177e65d8d30b83c6ecd98b798a7bb": {
-      "address": "0xE59628178994E4B533Ec361907d08c2f9a107E2E",
-      "txHash": "0x1f77ace47df7bd84eb39b86ba15477d3bff6f1b1411bb2ac10469441989b6cdd",
+    "6eccd95c3fcf584a24ebd2e9c1827f3c417e5f5c777925534e2ecd5f16147f2c": {
+      "address": "0x03a16C47Fa284E13E3Ea628dCB5C7CD7d6F085d6",
+      "txHash": "0x9fcd49f36879721302047bf7dbb71d7cebe9c4c1cf2d6aed81543d339f8bbc67",
       "layout": {
         "storage": [
           {
@@ -83,7 +68,7 @@
             "slot": "101",
             "type": "t_uint256",
             "contract": "DarwinDrop",
-            "src": "contracts/DarwinDrop.sol:87"
+            "src": "contracts/DarwinDrop.sol:82"
           },
           {
             "label": "airdropPromotionPriceEth",
@@ -91,7 +76,7 @@
             "slot": "102",
             "type": "t_uint256",
             "contract": "DarwinDrop",
-            "src": "contracts/DarwinDrop.sol:88"
+            "src": "contracts/DarwinDrop.sol:83"
           },
           {
             "label": "lastAirdropId",
@@ -99,7 +84,7 @@
             "slot": "103",
             "type": "t_uint256",
             "contract": "DarwinDrop",
-            "src": "contracts/DarwinDrop.sol:89"
+            "src": "contracts/DarwinDrop.sol:84"
           },
           {
             "label": "maxDelayForAirdropStart",
@@ -107,55 +92,31 @@
             "slot": "104",
             "type": "t_uint256",
             "contract": "DarwinDrop",
-            "src": "contracts/DarwinDrop.sol:90"
-          },
-          {
-            "label": "maxAirdropDuration",
-            "offset": 0,
-            "slot": "105",
-            "type": "t_uint256",
-            "contract": "DarwinDrop",
-            "src": "contracts/DarwinDrop.sol:91"
+            "src": "contracts/DarwinDrop.sol:85"
           },
           {
             "label": "darwinCommunityAddress",
             "offset": 0,
-            "slot": "106",
+            "slot": "105",
             "type": "t_address",
             "contract": "DarwinDrop",
-            "src": "contracts/DarwinDrop.sol:93"
-          },
-          {
-            "label": "airdropRecepients",
-            "offset": 0,
-            "slot": "107",
-            "type": "t_mapping(t_uint256,t_address)",
-            "contract": "DarwinDrop",
-            "src": "contracts/DarwinDrop.sol:96"
+            "src": "contracts/DarwinDrop.sol:87"
           },
           {
             "label": "airdrops",
             "offset": 0,
-            "slot": "108",
-            "type": "t_mapping(t_uint256,t_struct(AirDrop)1596_storage)",
+            "slot": "106",
+            "type": "t_mapping(t_uint256,t_struct(AirDrop)3162_storage)",
             "contract": "DarwinDrop",
-            "src": "contracts/DarwinDrop.sol:97"
+            "src": "contracts/DarwinDrop.sol:89"
           },
           {
             "label": "airdropMeta",
             "offset": 0,
-            "slot": "109",
-            "type": "t_mapping(t_uint256,t_struct(AirdropMeta)1608_storage)",
+            "slot": "107",
+            "type": "t_mapping(t_uint256,t_struct(AirdropMeta)3176_storage)",
             "contract": "DarwinDrop",
-            "src": "contracts/DarwinDrop.sol:98"
-          },
-          {
-            "label": "pendingWithdrawals",
-            "offset": 0,
-            "slot": "110",
-            "type": "t_mapping(t_address,t_uint256)",
-            "contract": "DarwinDrop",
-            "src": "contracts/DarwinDrop.sol:100"
+            "src": "contracts/DarwinDrop.sol:90"
           }
         ],
         "types": {
@@ -175,7 +136,7 @@
             "label": "bool",
             "numberOfBytes": "1"
           },
-          "t_enum(AirDropRequirementType)1565": {
+          "t_enum(AirDropRequirementType)3131": {
             "label": "enum DarwinDrop.AirDropRequirementType",
             "members": [
               "TOKEN_REQUIRED",
@@ -185,7 +146,7 @@
             ],
             "numberOfBytes": "1"
           },
-          "t_enum(AirDropType)1560": {
+          "t_enum(AirDropType)3126": {
             "label": "enum DarwinDrop.AirDropType",
             "members": [
               "LOTTERY",
@@ -194,7 +155,7 @@
             ],
             "numberOfBytes": "1"
           },
-          "t_enum(AirdropStatus)1569": {
+          "t_enum(AirdropStatus)3135": {
             "label": "enum DarwinDrop.AirdropStatus",
             "members": [
               "ACTIVE",
@@ -203,23 +164,15 @@
             ],
             "numberOfBytes": "1"
           },
-          "t_mapping(t_address,t_uint256)": {
-            "label": "mapping(address => uint256)",
-            "numberOfBytes": "32"
-          },
-          "t_mapping(t_uint256,t_address)": {
-            "label": "mapping(uint256 => address)",
-            "numberOfBytes": "32"
-          },
-          "t_mapping(t_uint256,t_struct(AirDrop)1596_storage)": {
+          "t_mapping(t_uint256,t_struct(AirDrop)3162_storage)": {
             "label": "mapping(uint256 => struct DarwinDrop.AirDrop)",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_struct(AirdropMeta)1608_storage)": {
+          "t_mapping(t_uint256,t_struct(AirdropMeta)3176_storage)": {
             "label": "mapping(uint256 => struct DarwinDrop.AirdropMeta)",
             "numberOfBytes": "32"
           },
-          "t_struct(AirDrop)1596_storage": {
+          "t_struct(AirDrop)3162_storage": {
             "label": "struct DarwinDrop.AirDrop",
             "members": [
               {
@@ -284,304 +237,20 @@
               },
               {
                 "label": "airDropType",
-                "type": "t_enum(AirDropType)1560",
+                "type": "t_enum(AirDropType)3126",
                 "offset": 0,
                 "slot": "10"
               },
               {
                 "label": "requirementType",
-                "type": "t_enum(AirDropRequirementType)1565",
+                "type": "t_enum(AirDropRequirementType)3131",
                 "offset": 1,
                 "slot": "10"
               }
             ],
             "numberOfBytes": "352"
           },
-          "t_struct(AirdropMeta)1608_storage": {
-            "label": "struct DarwinDrop.AirdropMeta",
-            "members": [
-              {
-                "label": "ethSpent",
-                "type": "t_uint256",
-                "offset": 0,
-                "slot": "0"
-              },
-              {
-                "label": "distributedTokens",
-                "type": "t_uint256",
-                "offset": 0,
-                "slot": "1"
-              },
-              {
-                "label": "ownerWithdrawnTokens",
-                "type": "t_uint256",
-                "offset": 0,
-                "slot": "2"
-              },
-              {
-                "label": "isPromoted",
-                "type": "t_bool",
-                "offset": 0,
-                "slot": "3"
-              },
-              {
-                "label": "status",
-                "type": "t_enum(AirdropStatus)1569",
-                "offset": 1,
-                "slot": "3"
-              }
-            ],
-            "numberOfBytes": "128"
-          },
-          "t_uint256": {
-            "label": "uint256",
-            "numberOfBytes": "32"
-          }
-        }
-      }
-    },
-    "4968c52289efa3471685448c9027436783516d3254ff5964a6b4eb570bb7ad1d": {
-      "address": "0xaCFD4F95E9ffBA646838040440B0b90ea76fc7AB",
-      "txHash": "0x3f1a73364accb6f879d3f7a91184dad2af683e89ff9b3c34bd51928148b65530",
-      "layout": {
-        "storage": [
-          {
-            "label": "_initialized",
-            "offset": 0,
-            "slot": "0",
-            "type": "t_bool",
-            "contract": "Initializable",
-            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:39"
-          },
-          {
-            "label": "_initializing",
-            "offset": 1,
-            "slot": "0",
-            "type": "t_bool",
-            "contract": "Initializable",
-            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:44"
-          },
-          {
-            "label": "__gap",
-            "offset": 0,
-            "slot": "1",
-            "type": "t_array(t_uint256)50_storage",
-            "contract": "ContextUpgradeable",
-            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
-          },
-          {
-            "label": "_owner",
-            "offset": 0,
-            "slot": "51",
-            "type": "t_address",
-            "contract": "OwnableUpgradeable",
-            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
-          },
-          {
-            "label": "__gap",
-            "offset": 0,
-            "slot": "52",
-            "type": "t_array(t_uint256)49_storage",
-            "contract": "OwnableUpgradeable",
-            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:87"
-          },
-          {
-            "label": "airdropCreationPriceEth",
-            "offset": 0,
-            "slot": "101",
-            "type": "t_uint256",
-            "contract": "DarwinDrop",
-            "src": "contracts/DarwinDrop.sol:87"
-          },
-          {
-            "label": "airdropPromotionPriceEth",
-            "offset": 0,
-            "slot": "102",
-            "type": "t_uint256",
-            "contract": "DarwinDrop",
-            "src": "contracts/DarwinDrop.sol:88"
-          },
-          {
-            "label": "lastAirdropId",
-            "offset": 0,
-            "slot": "103",
-            "type": "t_uint256",
-            "contract": "DarwinDrop",
-            "src": "contracts/DarwinDrop.sol:89"
-          },
-          {
-            "label": "maxDelayForAirdropStart",
-            "offset": 0,
-            "slot": "104",
-            "type": "t_uint256",
-            "contract": "DarwinDrop",
-            "src": "contracts/DarwinDrop.sol:90"
-          },
-          {
-            "label": "maxAirdropDuration",
-            "offset": 0,
-            "slot": "105",
-            "type": "t_uint256",
-            "contract": "DarwinDrop",
-            "src": "contracts/DarwinDrop.sol:91"
-          },
-          {
-            "label": "darwinCommunityAddress",
-            "offset": 0,
-            "slot": "106",
-            "type": "t_address",
-            "contract": "DarwinDrop",
-            "src": "contracts/DarwinDrop.sol:93"
-          },
-          {
-            "label": "airdrops",
-            "offset": 0,
-            "slot": "107",
-            "type": "t_mapping(t_uint256,t_struct(AirDrop)1594_storage)",
-            "contract": "DarwinDrop",
-            "src": "contracts/DarwinDrop.sol:95"
-          },
-          {
-            "label": "airdropMeta",
-            "offset": 0,
-            "slot": "108",
-            "type": "t_mapping(t_uint256,t_struct(AirdropMeta)1608_storage)",
-            "contract": "DarwinDrop",
-            "src": "contracts/DarwinDrop.sol:96"
-          }
-        ],
-        "types": {
-          "t_address": {
-            "label": "address",
-            "numberOfBytes": "20"
-          },
-          "t_array(t_uint256)49_storage": {
-            "label": "uint256[49]",
-            "numberOfBytes": "1568"
-          },
-          "t_array(t_uint256)50_storage": {
-            "label": "uint256[50]",
-            "numberOfBytes": "1600"
-          },
-          "t_bool": {
-            "label": "bool",
-            "numberOfBytes": "1"
-          },
-          "t_enum(AirDropRequirementType)1563": {
-            "label": "enum DarwinDrop.AirDropRequirementType",
-            "members": [
-              "TOKEN_REQUIRED",
-              "NFT_REQUIRED",
-              "PASSWORD",
-              "NONE"
-            ],
-            "numberOfBytes": "1"
-          },
-          "t_enum(AirDropType)1558": {
-            "label": "enum DarwinDrop.AirDropType",
-            "members": [
-              "LOTTERY",
-              "USER_LIMITED",
-              "TOKEN_LIMITED"
-            ],
-            "numberOfBytes": "1"
-          },
-          "t_enum(AirdropStatus)1567": {
-            "label": "enum DarwinDrop.AirdropStatus",
-            "members": [
-              "ACTIVE",
-              "CANCELLED",
-              "TOKEN_DISTRIBUTED"
-            ],
-            "numberOfBytes": "1"
-          },
-          "t_mapping(t_uint256,t_struct(AirDrop)1594_storage)": {
-            "label": "mapping(uint256 => struct DarwinDrop.AirDrop)",
-            "numberOfBytes": "32"
-          },
-          "t_mapping(t_uint256,t_struct(AirdropMeta)1608_storage)": {
-            "label": "mapping(uint256 => struct DarwinDrop.AirdropMeta)",
-            "numberOfBytes": "32"
-          },
-          "t_struct(AirDrop)1594_storage": {
-            "label": "struct DarwinDrop.AirDrop",
-            "members": [
-              {
-                "label": "id",
-                "type": "t_uint256",
-                "offset": 0,
-                "slot": "0"
-              },
-              {
-                "label": "airdropOwner",
-                "type": "t_address",
-                "offset": 0,
-                "slot": "1"
-              },
-              {
-                "label": "airdropTokenAddress",
-                "type": "t_address",
-                "offset": 0,
-                "slot": "2"
-              },
-              {
-                "label": "airdropTokenAmount",
-                "type": "t_uint256",
-                "offset": 0,
-                "slot": "3"
-              },
-              {
-                "label": "tokensPerUser",
-                "type": "t_uint256",
-                "offset": 0,
-                "slot": "4"
-              },
-              {
-                "label": "startTime",
-                "type": "t_uint256",
-                "offset": 0,
-                "slot": "5"
-              },
-              {
-                "label": "endTime",
-                "type": "t_uint256",
-                "offset": 0,
-                "slot": "6"
-              },
-              {
-                "label": "airdropMaxParticipants",
-                "type": "t_uint256",
-                "offset": 0,
-                "slot": "7"
-              },
-              {
-                "label": "requirementTokenAddress",
-                "type": "t_address",
-                "offset": 0,
-                "slot": "8"
-              },
-              {
-                "label": "requirementTokenAmount",
-                "type": "t_uint256",
-                "offset": 0,
-                "slot": "9"
-              },
-              {
-                "label": "airDropType",
-                "type": "t_enum(AirDropType)1558",
-                "offset": 0,
-                "slot": "10"
-              },
-              {
-                "label": "requirementType",
-                "type": "t_enum(AirDropRequirementType)1563",
-                "offset": 1,
-                "slot": "10"
-              }
-            ],
-            "numberOfBytes": "352"
-          },
-          "t_struct(AirdropMeta)1608_storage": {
+          "t_struct(AirdropMeta)3176_storage": {
             "label": "struct DarwinDrop.AirdropMeta",
             "members": [
               {
@@ -616,7 +285,7 @@
               },
               {
                 "label": "status",
-                "type": "t_enum(AirdropStatus)1567",
+                "type": "t_enum(AirdropStatus)3135",
                 "offset": 1,
                 "slot": "4"
               }

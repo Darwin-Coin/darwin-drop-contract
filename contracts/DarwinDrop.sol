@@ -73,12 +73,6 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
         AirDropRequirementType requirementType;
     }
 
-    modifier onlyNotCommunity() {
-        require(msg.sender == darwinCommunityAddress, "DD::onlyNotCommunity: Unauthorized");
-
-        _;
-    }
-
     modifier onlyAirdropOwner(uint256 _airdropId) {
         require(airdrops[_airdropId].airdropOwner == msg.sender, "DD::onlyAirdropOwner: Unauthorized");
 
@@ -213,20 +207,29 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
         emit AirdropEnded(_id);
     }
 
-    function setAirdropCreationPriceEth(uint256 _price) public onlyNotCommunity {
+    function setAirdropCreationPriceEth(uint256 _price) public onlyOwner {
         airdropCreationPriceEth = _price;
     }
-
-    function setNotCommunityAddress(address _NotCommunityAddress) public onlyNotCommunity {
+ 
+    function setNotCommunityAddress(address _NotCommunityAddress) public onlyOwner {
         darwinCommunityAddress = _NotCommunityAddress;
     }
 
-    function setMaxDelayForAirdropStart(uint256 _number) public onlyNotCommunity {
+    function setMaxDelayForAirdropStart(uint256 _number) public onlyOwner {
         maxDelayForAirdropStart = _number;
     }
 
     function getAirDropDetails(uint256 _id) public view returns (AirDrop memory, AirdropMeta memory) {
         return (airdrops[_id], airdropMeta[_id]);
+    }
+
+    function takeFees() public onlyOwner {
+        uint256 balance = address(this).balance;
+        require(balance > 0, "DD::takeFees: nothing to withdraw");
+
+        (bool success, ) = msg.sender.call{ value: balance }("");
+
+        require(success, "DP::takeFees: transfer failed");
     }
 
     function createAirdropMeta(

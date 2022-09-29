@@ -1,13 +1,14 @@
 import { ethers, upgrades } from "hardhat";
-import { TestErc20Token } from "../typechain";
+import { TestErc20Token, TestErc321Token } from "../typechain";
 
 
 async function main() {
     
     const DarwinDrop = await ethers.getContractFactory("DarwinDrop");
     const Token = await ethers.getContractFactory("TestErc20Token");
+    const NFT = await ethers.getContractFactory("TestErc321Token");
 
-    const [owner, ...accounts] = await ethers.getSigners();
+    const [owner,address1, ...accounts] = await ethers.getSigners();
 
     // Deploy contract with the correct constructor arguments
     const contract = await upgrades.deployProxy(DarwinDrop, [owner.address]);
@@ -24,6 +25,14 @@ async function main() {
     await token.deployed();
 
     console.log("Token Deployed at:", token.address);
+
+    const nft = await NFT.deploy() as TestErc321Token
+
+    // Wait for this transaction to be mined
+    await nft.deployed();
+
+    
+    console.log("NFT Deployed at:", nft.address);
 
 }
 

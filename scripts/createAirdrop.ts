@@ -10,29 +10,36 @@ async function main() {
     const [owner, ...accounts] = await ethers.getSigners();
 
     // Deploy contract with the correct constructor arguments
-    const darwinDrop = DarwinDrop__factory.connect("0xCE6629ac82b1A95D49E3c16700E32b4F84862a6b", owner)
-    const token = TestErc20Token__factory.connect("0xDB2B2c11549415FE3Dfc55bDdD31070F3BA1943d", owner) as TestErc20Token
+    const darwinDrop = DarwinDrop__factory.connect("0x9CaFe5f36631b6639453AA3B3560569e0dfa513f", owner)
+    const token = TestErc20Token__factory.connect("0x5e303C966E53837d9044f1A2eA1DBd6352d0AB15", owner) as TestErc20Token
 
-    const tokensToAirdrop = 100;
+    const tokenAmount  = BigNumber.from(100000000).toString()
 
-    await token.approve(darwinDrop.address, tokensToAirdrop)
 
-    // const averageGasPrice = await owner.getGasPrice()
+    const formatToken = (amount:BigNumber | string, decimalPlaces:number) : string => {
 
-    // console.log(gasToTransferSingleToken.toString(), averageGasPrice.toString())
+        const decimals = BigNumber.from(10).pow(decimalPlaces)
 
-    const actualTnx = await (await token.transfer(accounts[0].address, 100)).wait(2);
+        const tokens = BigNumber.from(amount)
 
-    // console.log(actualTnx.gasUsed.toString(), actualTnx.effectiveGasPrice.toString(),)
+        const beforeDecimal = tokens.div(decimals)
+        const afterDecimal = tokens.mod(decimals)
 
-    // console.log(actualTnx)
+        return `${beforeDecimal}.${afterDecimal}`
+    }
 
-    // console.log(ethers.utils.formatEther(gasToTransferSingleToken.mul(averageGasPrice)))
+    // console.log(formatToken(tokenAmount,8))
 
-    // console.log(ethers.utils.formatEther(actualTnx.effectiveGasPrice.mul(actualTnx.cumulativeGasUsed)))
+    // console.log(ethers.utils.formatEther(await owner.provider!!.getBalance(darwinDrop.address)))
 
-    // if (true == true)
-    //     return;
+   console.log(await darwinDrop.takeFees())
+
+//    console.log(ethers.utils.formatEther(await owner.provider!!.getBalance(darwinDrop.address)))
+
+    // const tokensToAirdrop = 100;
+
+    // await token.approve(darwinDrop.address, tokensToAirdrop)
+
 
     // let now = await lastBlockTime()
 
@@ -44,15 +51,15 @@ async function main() {
     //         airdropTokenAmount: tokensToAirdrop,
     //         tokensPerUser: 0,
     //         startTime: now,
-    //         endTime: endTime,
+    //         endTime: 0,
     //         airdropMaxParticipants: BigNumber.from(10 ** 8),
     //         requirementTokenAddress: token.address,// ethers.constants.AddressZero,
     //         requirementTokenAmount: 1,
     //         isPromoted: false,
     //         airDropType: AirDropType.LOTTERY,
-    //         requirementType: AirDropRequirementType.NONE
+    //         requirementType: AirDropRequirementType.TOKEN_REQUIRED
     //     },
-    //     4,
+    //     1,
     //     {
     //         value: ethers.utils.parseEther(".5")
     //     }
@@ -65,40 +72,6 @@ async function main() {
     // console.log(airdropCreatedEvent.args.airdrop.id);
 
     // await setNetworkTimeStamp(BigNumber.from(endTime.add(10)))
-
-    const airdropId = 6; //airdropCreatedEvent.args.airdrop.id;
-    const baseGas = 21000
-    const averageGasPrice = await owner.getGasPrice()
-
-    const tnx = await token.transfer(accounts[0].address, 100);
-
-    console.log(tnx)
-
-    const gasToTransferSingleToken = await token.estimateGas.transfer(accounts[0].address, 100);
-
-    const airdropTnxForOneAddress = await darwinDrop.estimateGas.airDropTokens([accounts[1].address], airdropId)
-    const airdropTnxForTwo = await darwinDrop.estimateGas.airDropTokens([accounts[0].address, accounts[1].address], airdropId)
-    const airdropTnxForThree = await darwinDrop.estimateGas.airDropTokens([owner.address, accounts[0].address, accounts[1].address], airdropId)
-
-
-    const gasOnlyForTokenTnx = gasToTransferSingleToken.sub(baseGas)
-    const airdropUtilityCost = airdropTnxForOneAddress.sub(gasOnlyForTokenTnx)
-
-    const estimatedCostForTwo  = airdropUtilityCost.add(gasOnlyForTokenTnx.mul(2)).add(baseGas)
-    const estimatedCostForThree  = airdropUtilityCost.add(gasOnlyForTokenTnx.mul(3)).add(baseGas)
-
-    console.log(format(airdropTnxForTwo.mul(averageGasPrice)))
-    console.log(format(estimatedCostForTwo.mul(averageGasPrice)))
-    console.log(format(airdropTnxForThree.mul(averageGasPrice)))
-    console.log(format(estimatedCostForThree.mul(averageGasPrice)))
-
-    // console.log({
-    //     gasToTransferSingleToken : format(gasToTransferSingleToken.mul(averageGasPrice)),
-    //     airdropTnxForOneAddress: format(airdropTnxForOneAddress.mul(averageGasPrice)),
-    //     airdropTnxForTwo: format(airdropTnxForTwo.mul(averageGasPrice)),
-    //     estimatedCostForTwo: format(estimatedCostForTwo.mul(averageGasPrice)),
-    //     airdropTnxForThree: format(airdropTnxForThree.mul(averageGasPrice)),
-    // })
 
 }
 

@@ -10,9 +10,12 @@ async function main() {
     const [owner, ...accounts] = await ethers.getSigners();
 
     // Deploy contract with the correct constructor arguments
-    const darwinDrop = DarwinDrop__factory.connect("0xfb752888bb1175f49e02899b36b9805bF2B9504d", owner)
+    const darwinDrop = DarwinDrop__factory.connect("0x9CaFe5f36631b6639453AA3B3560569e0dfa513f", owner)
 
-    console.log(await (await darwinDrop.airDropTokens([owner.address],14)).wait(2))    
+    // console.log(await darwinDrop.getAirDropDetails(11))
+
+    console.log(await (await darwinDrop.airDropTokens([owner.address],0)).wait(2))    
+    // console.log(await (await darwinDrop.withdrawRemainingTokens(18)).wait(2))    
 
 }
 

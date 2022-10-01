@@ -40,7 +40,6 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
         address airdropOwner;
         address airdropTokenAddress;
         uint256 airdropTokenAmount;
-        uint256 tokensPerUser;
         uint256 startTime;
         uint256 endTime;
         uint256 airdropMaxParticipants;
@@ -62,7 +61,6 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
     struct CreateAirDropParams {
         address airdropTokenAddress;
         uint256 airdropTokenAmount;
-        uint256 tokensPerUser;
         uint256 startTime;
         uint256 endTime;
         uint256 airdropMaxParticipants;
@@ -117,7 +115,7 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
 
         require(drop.endTime == 0 || drop.endTime <= block.timestamp, "DD::airDropTokens:AirDrop is still active");
 
-        uint256 airdropAmount = drop.airDropType == AirDropType.TOKEN_LIMITED ? drop.tokensPerUser : drop.airdropTokenAmount / _recipient.length;
+        uint256 airdropAmount = drop.airdropTokenAmount / _recipient.length;
 
         bool[] memory airdropReceived = new bool[](_recipient.length);
         uint256 usersNotReceivingTokens = 0;
@@ -210,7 +208,7 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
     function setAirdropCreationPriceEth(uint256 _price) public onlyOwner {
         airdropCreationPriceEth = _price;
     }
- 
+
     function setNotCommunityAddress(address _NotCommunityAddress) public onlyOwner {
         darwinCommunityAddress = _NotCommunityAddress;
     }
@@ -265,7 +263,6 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
             airdropOwner: msg.sender,
             airdropTokenAddress: params.airdropTokenAddress,
             airdropTokenAmount: params.airdropTokenAmount,
-            tokensPerUser: params.tokensPerUser,
             startTime: params.startTime,
             endTime: params.endTime,
             airdropMaxParticipants: params.airdropMaxParticipants,

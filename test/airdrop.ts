@@ -44,7 +44,6 @@ describe("NotCrypto", async () => {
                {
                 airdropTokenAddress: token.address,
                 airdropTokenAmount: 100,
-                tokensPerUser: 0,
                 startTime: now,
                 endTime: now,
                 airdropMaxParticipants: BigNumber.from(10 ** 8),
@@ -76,7 +75,6 @@ describe("NotCrypto", async () => {
                {
                 airdropTokenAddress: token.address,
                 airdropTokenAmount: 100,
-                tokensPerUser: 0,
                 startTime: start,
                 endTime: end,
                 airdropMaxParticipants: BigNumber.from(10 ** 8),
@@ -104,7 +102,6 @@ describe("NotCrypto", async () => {
                {
                 airdropTokenAddress: token.address,
                 airdropTokenAmount: tokensToAirdrop,
-                tokensPerUser: 0,
                 startTime: now,
                 endTime: now + 12000,
                 airdropMaxParticipants: BigNumber.from(10 ** 8),
@@ -120,8 +117,6 @@ describe("NotCrypto", async () => {
                 value: ethers.utils.parseEther(".1")
             }
         )
-
-        console.log(await tnx.wait())
 
         })
 

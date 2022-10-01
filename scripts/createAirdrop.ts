@@ -49,7 +49,6 @@ async function main() {
     //     {
     //         airdropTokenAddress: token.address,
     //         airdropTokenAmount: tokensToAirdrop,
-    //         tokensPerUser: 0,
     //         startTime: now,
     //         endTime: 0,
     //         airdropMaxParticipants: BigNumber.from(10 ** 8),

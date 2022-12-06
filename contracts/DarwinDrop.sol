@@ -91,20 +91,25 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
     uint256 public maxAirdropDuration;
 
     address public darwinCommunityAddress;
+    address public DarwinTeamAddress;
 
     mapping(uint256 => AirDrop) public airdrops;
     mapping(uint256 => AirdropMeta) public airdropMeta;
 
-    function initialize(address _NotCommunity) public initializer {
+    mapping(address => uint256) public noFees;
+
+    function initialize(address _NotCommunity, address _teamAddress) public initializer {
         __Context_init_unchained();
         __Ownable_init_unchained();
-        __NotDrop_init_unchained(_NotCommunity);
+        __NotDrop_init_unchained(_NotCommunity, _teamAddress);
     }
 
-    function __NotDrop_init_unchained(address _NotCommunity) private onlyInitializing {
+    function __NotDrop_init_unchained(address _NotCommunity, address _teamAddress) private onlyInitializing {
         darwinCommunityAddress = _NotCommunity;
+        DarwinTeamAddress = _teamAddress;
 
         airdropCreationPriceEth = 0.1 ether;
+        airdropPromotionPriceEth = 1.0 ether;
 
         lastAirdropId = 0;
         maxDelayForAirdropStart = 15 days;
@@ -194,6 +199,10 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
         airdropCreationPriceEth = _price;
     }
 
+    function setAirdropPromoPriceEth(uint256 _price) public onlyNotCommunity {
+        airdropPromotionPriceEth = _price;
+    }
+
     function setNotCommunityAddress(address _NotCommunityAddress) public onlyNotCommunity {
         darwinCommunityAddress = _NotCommunityAddress;
     }
@@ -201,7 +210,9 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
     function setMaxDelayForAirdropStart(uint256 _number) public onlyNotCommunity {
         maxDelayForAirdropStart = _number;
     }
-
+    function setNoFees(address _wallet, uint256 yesNo) public onlyNotCommunity {
+        noFees[_wallet] = yesNo;
+    }
     function setMaxAirdropDuration(uint256 _difference) public onlyNotCommunity {
         maxAirdropDuration = _difference;
     }
@@ -236,7 +247,10 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
 
         uint256 ethSpent = params.isPromoted ? airdropCreationPriceEth + airdropPromotionPriceEth : airdropCreationPriceEth;
 
-        require(msg.value >= ethSpent, "DD::createAirdrop: not enough base token sent");
+        if noFees[msg.sender] 
+            ethSpent = 0 ; 
+        else
+            require(msg.value >= ethSpent, "DD::createAirdrop: not enough base token sent");
 
         IERC20(params.airdropTokenAddress).transferFrom(msg.sender, address(this), params.airdropTokenAmount);
 
@@ -259,9 +273,10 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
 
         airdrops[dropId] = airDrop;
 
-        if (msg.value > ethSpent) {
-            payable(msg.sender).transfer(msg.value - ethSpent);
-        }
+        if ( ethSpent != 0 ) {
+            (bool sent, bytes memory data) = DarwinTeamAddress.call{value: ethSpent}("");
+            require(sent, "Failed to send Ether");
+            }
 
         emit AirDropCreated(airDrop, airdropMeta[dropId], msg.sender, dropId, dropDetailsId);
 

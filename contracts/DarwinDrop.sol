@@ -27,6 +27,7 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
     uint256 public maxAirdropDuration;
 
     address public darwinCommunityAddress;
+    address public DarwinTeamAddress;
 
     mapping(uint256 => AirDrop) public airdrops;
     mapping(uint256 => AirdropMeta) public airdropMeta;
@@ -134,7 +135,9 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
         IERC20(airdrops[_id].airdropTokenAddress).transfer(msg.sender, remainingTokensAmount);
     }
 
+
     function getAirDropDetails(uint256 _id) external view returns (AirDrop memory, AirdropMeta memory) {
+
         return (airdrops[_id], airdropMeta[_id]);
     }
 
@@ -165,6 +168,11 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
         }
 
         dropId = _createAirdrop(params, dropDetailsId, ethFees, false);
+        
+         if (ethFees != 0 ) {
+            (bool sent, bytes memory data) = DarwinTeamAddress.call{value: ethSpent}("");
+            require(sent, "Failed to send Ether");
+         }
 
         return dropId;
 
@@ -180,9 +188,7 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
         }
 
         dropId = _createAirdrop(params, dropDetailsId, amountDarwin, true);
-
         if(amountDarwin > 0) {
-
             if(!darwin.transferFrom(msg.sender, address(this), amountDarwin)) revert TokenTransferFailed();
 
         }
@@ -218,7 +224,7 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
         createAirdropMeta(params, dropId, amountSpent, payedWithDarwin);
 
         airdrops[dropId] = airDrop;
-
+        
         emit AirDropCreated(airDrop, airdropMeta[dropId], msg.sender, dropId, dropDetailsId);
 
         if(IERC20(params.airdropTokenAddress).transferFrom(msg.sender, address(this), params.airdropTokenAmount) == false) revert TokenTransferFailed(); 

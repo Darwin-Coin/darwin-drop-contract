@@ -168,11 +168,6 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
         }
 
         dropId = _createAirdrop(params, dropDetailsId, ethFees, false);
-        
-         if (ethFees != 0 ) {
-            (bool sent, bytes memory data) = DarwinTeamAddress.call{value: ethSpent}("");
-            require(sent, "Failed to send Ether");
-         }
 
         return dropId;
 

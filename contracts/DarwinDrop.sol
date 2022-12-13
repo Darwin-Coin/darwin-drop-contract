@@ -2,85 +2,21 @@ pragma solidity 0.8.14;
 
 // SPDX-License-Identifier: MIT
 
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "./interfaces/IDarwinDrop.sol";
+import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
 
-contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
-    using AddressUpgradeable for address;
+contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
 
-    event AirDropCreated(AirDrop airdrop, AirdropMeta meta, address indexed creatorAddress, uint256 dropId, uint256 dropDetailsId);
-    event AirdropCancelled(uint256 id, address canceller);
-    event AirdropDistributed(uint256 id, uint256 totalAmount, uint256 totalRecepients, address[] recepients);
-
-    enum AirDropType {
-        LOTTERY,
-        USER_LIMITED,
-        TOKEN_LIMITED
-    }
-
-    enum AirDropRequirementType {
-        TOKEN_REQUIRED,
-        NFT_REQUIRED,
-        PASSWORD,
-        NONE
-    }
-
-    enum AirdropStatus {
-        ACTIVE,
-        CANCELLED,
-        TOKEN_DISTRIBUTED
-    }
-
-    struct AirDrop {
-        uint256 id;
-        address airdropOwner;
-        address airdropTokenAddress;
-        uint256 airdropTokenAmount;
-        uint256 tokensPerUser;
-        uint256 startTime;
-        uint256 endTime;
-        uint256 airdropMaxParticipants;
-        address requirementTokenAddress;
-        uint256 requirementTokenAmount;
-        AirDropType airDropType;
-        AirDropRequirementType requirementType;
-    }
-
-    struct AirdropMeta {
-        uint256 ethSpent;
-        uint256 distributedTokens;
-        uint256 recepientCount;
-        uint256 ownerWithdrawnTokens;
-        bool isPromoted;
-        AirdropStatus status;
-    }
-
-    struct CreateAirDropParams {
-        address airdropTokenAddress;
-        uint256 airdropTokenAmount;
-        uint256 tokensPerUser;
-        uint256 startTime;
-        uint256 endTime;
-        uint256 airdropMaxParticipants;
-        address requirementTokenAddress;
-        uint256 requirementTokenAmount;
-        bool isPromoted;
-        AirDropType airDropType;
-        AirDropRequirementType requirementType;
-    }
-
-    modifier onlyNotCommunity() {
-        require(msg.sender == darwinCommunityAddress, "DD::onlyNotCommunity: Unauthorized");
-
+    modifier onlyCommunity() {
+        if(msg.sender != darwinCommunityAddress) revert NotDarwinCommunity();
         _;
     }
 
     modifier onlyAirdropOwner(uint256 _airdropId) {
-        require(airdrops[_airdropId].airdropOwner == msg.sender, "DD::onlyAirdropOwner: Unauthorized");
-
+        if(airdrops[_airdropId].airdropOwner != msg.sender) revert NotAirdropOwner();
         _;
     }
 
@@ -95,48 +31,54 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
 
     mapping(uint256 => AirDrop) public airdrops;
     mapping(uint256 => AirdropMeta) public airdropMeta;
+    mapping(address => bool) public feeWhitelist;
 
-    mapping(address => uint256) public noFees;
+    IUniswapV2Pair pair;
 
-    function initialize(address _NotCommunity, address _teamAddress) public initializer {
+    IERC20 darwin;
+
+    function initialize(address _community, address _darwin) public initializer {
         __Context_init_unchained();
         __Ownable_init_unchained();
-        __NotDrop_init_unchained(_NotCommunity, _teamAddress);
+        __DarwinDrop_init_unchained(_community, _darwin);
+        __UUPSUpgradeable_init_unchained();
     }
 
-    function __NotDrop_init_unchained(address _NotCommunity, address _teamAddress) private onlyInitializing {
-        darwinCommunityAddress = _NotCommunity;
-        DarwinTeamAddress = _teamAddress;
+    function __DarwinDrop_init_unchained(address _community, address _darwin) private onlyInitializing {
+        darwinCommunityAddress = _community;
 
         airdropCreationPriceEth = 0.1 ether;
-        airdropPromotionPriceEth = 1.0 ether;
+        airdropPromotionPriceEth = 1 ether;
 
-        lastAirdropId = 0;
         maxDelayForAirdropStart = 15 days;
         maxAirdropDuration = 20 days;
+
+        darwin = IERC20(_darwin);
+
     }
 
     //distribute tokens to participants
-    function airDropTokens(address[] calldata _recipient, uint256 _id) public onlyAirdropOwner(_id) {
+    function airDropTokens(address[] calldata _recipient, uint256 _id) external onlyAirdropOwner(_id) {
         AirdropMeta storage meta = airdropMeta[_id];
 
-        require(meta.status == AirdropStatus.ACTIVE, "DD::airDropTokens: airDrop is not active");
+        if(meta.status != AirdropStatus.ACTIVE) revert AirdropNotActive();
 
         AirDrop memory drop = airdrops[_id];
 
-        require(_recipient.length <= drop.airdropMaxParticipants, "DD::airDropTokens: airDrop is full");
+        if(_recipient.length > drop.airdropMaxParticipants) revert AirdropFull();
 
-        require(drop.endTime <= block.timestamp, "DD::airDropTokens:AirDrop is still active");
+        if(drop.endTime > block.timestamp) revert AirdropStillInProgress();
 
         uint256 airdropAmount = drop.airDropType == AirDropType.TOKEN_LIMITED ? drop.tokensPerUser : drop.airdropTokenAmount / _recipient.length;
 
-        bool[] memory airdropReceived = new bool[](_recipient.length);
-        uint256 usersNotReceivingTokens = 0;
+        uint256 usersNotReceivingTokens;
+
+        IERC20 airdropToken = IERC20(drop.airdropTokenAddress);
+        IERC20 requirementToken = IERC20(drop.requirementTokenAddress);
 
         for (uint256 i = 0; i < _recipient.length; ) {
             if (drop.requirementType == AirDropRequirementType.TOKEN_REQUIRED || drop.requirementType == AirDropRequirementType.NFT_REQUIRED) {
-                if (IERC20(drop.requirementTokenAddress).balanceOf(_recipient[i]) < drop.requirementTokenAmount) {
-                    airdropReceived[i] = false;
+                if (requirementToken.balanceOf(_recipient[i]) < drop.requirementTokenAmount) {
                     unchecked {
                         ++i;
                         ++usersNotReceivingTokens;
@@ -145,9 +87,7 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
                 }
             }
 
-            IERC20(drop.airdropTokenAddress).transfer(_recipient[i], airdropAmount);
-
-            airdropReceived[i] = true;
+            if(airdropToken.transfer(_recipient[i], airdropAmount) == false) revert TokenTransferFailed();
 
             unchecked {
                 ++i;
@@ -158,35 +98,35 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
         meta.distributedTokens += (_recipient.length - usersNotReceivingTokens) * airdropAmount;
         meta.recepientCount += (_recipient.length - usersNotReceivingTokens);
 
+        _transferOut(meta.feesPayed, darwinCommunityAddress, meta.payedWithDarwin);
+
         emit AirdropDistributed(_id, meta.distributedTokens, meta.recepientCount, _recipient);
     }
 
-    function cancelAirDrop(uint256 id) public {
+    function cancelAirDrop(uint256 id) external {
         AirDrop memory drop = airdrops[id];
         AirdropMeta storage meta = airdropMeta[id];
 
-        require(drop.airdropOwner == msg.sender || darwinCommunityAddress == msg.sender, "DD::cancelAirDrop: Unauthorized");
+        if(drop.airdropOwner != msg.sender && darwinCommunityAddress != msg.sender) revert UnauthorizedToCancel();
 
-        require(drop.endTime >= block.timestamp, "DD::cancelAirDrop: airDrop already ended");
+        if(drop.endTime < block.timestamp) revert AirdropOver();
 
-        require(meta.status == AirdropStatus.ACTIVE, "DD::cancelAirDrop: airDrop already cancelled");
+        if(meta.status != AirdropStatus.ACTIVE) revert AirdropAlreadyCanceled();
 
         meta.status = AirdropStatus.CANCELLED;
         meta.ownerWithdrawnTokens = drop.airdropTokenAmount;
 
-        IERC20(drop.airdropTokenAddress).transfer(msg.sender, drop.airdropTokenAmount);
+        if(IERC20(drop.airdropTokenAddress).transfer(drop.airdropOwner, drop.airdropTokenAmount) == false) revert TokenTransferFailed();
 
-        if (address(this).balance >= meta.ethSpent) {
-            payable(msg.sender).transfer(meta.ethSpent);
-        }
+        _transferOut(meta.feesPayed, drop.airdropOwner, meta.payedWithDarwin);
 
         emit AirdropCancelled(id, msg.sender);
     }
 
-    function withdrawRemainingTokens(uint256 _id) public onlyAirdropOwner(_id) {
+    function withdrawRemainingTokens(uint256 _id) external onlyAirdropOwner(_id) {
         AirdropMeta storage meta = airdropMeta[_id];
 
-        require(meta.status != AirdropStatus.ACTIVE, "DD::cancelAirDrop: airDrop is active");
+        if(meta.status == AirdropStatus.ACTIVE) revert AirdropActive();
 
         uint256 remainingTokensAmount = airdrops[_id].airdropTokenAmount - meta.distributedTokens - meta.ownerWithdrawnTokens;
 
@@ -195,64 +135,71 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
         IERC20(airdrops[_id].airdropTokenAddress).transfer(msg.sender, remainingTokensAmount);
     }
 
-    function setAirdropCreationPriceEth(uint256 _price) public onlyNotCommunity {
-        airdropCreationPriceEth = _price;
-    }
 
-    function setAirdropPromoPriceEth(uint256 _price) public onlyNotCommunity {
-        airdropPromotionPriceEth = _price;
-    }
+    function getAirDropDetails(uint256 _id) external view returns (AirDrop memory, AirdropMeta memory) {
 
-    function setNotCommunityAddress(address _NotCommunityAddress) public onlyNotCommunity {
-        darwinCommunityAddress = _NotCommunityAddress;
-    }
-
-    function setMaxDelayForAirdropStart(uint256 _number) public onlyNotCommunity {
-        maxDelayForAirdropStart = _number;
-    }
-    function setNoFees(address _wallet, uint256 yesNo) public onlyNotCommunity {
-        noFees[_wallet] = yesNo;
-    }
-    function setMaxAirdropDuration(uint256 _difference) public onlyNotCommunity {
-        maxAirdropDuration = _difference;
-    }
-
-    function getAirDropDetails(uint256 _id) public view returns (AirDrop memory, AirdropMeta memory) {
         return (airdrops[_id], airdropMeta[_id]);
     }
 
     function createAirdropMeta(
         CreateAirDropParams calldata params,
         uint256 dropId,
-        uint256 ethSpent
+        uint256 feesPayed,
+        bool payedWithDarwin
     ) private {
         airdropMeta[dropId] = AirdropMeta({
-            ethSpent: ethSpent,
+            feesPayed: feesPayed,
             distributedTokens: 0,
             recepientCount: 0,
             ownerWithdrawnTokens: 0,
             isPromoted: params.isPromoted,
+            payedWithDarwin: payedWithDarwin,
             status: AirdropStatus.ACTIVE
         });
     }
 
-    function createAirdrop(CreateAirDropParams calldata params, uint256 dropDetailsId) public payable returns (uint256) {
+    function createAirdrop(CreateAirDropParams calldata params, uint256 dropDetailsId) external payable returns (uint256 dropId) {
+
+        uint256 ethFees;
+
+        if(feeWhitelist[msg.sender] == false) {
+            ethFees = params.isPromoted ? airdropCreationPriceEth + airdropPromotionPriceEth : airdropCreationPriceEth;
+            if(msg.value != ethFees) revert InvalidValueSent();
+        }
+
+        dropId = _createAirdrop(params, dropDetailsId, ethFees, false);
+
+        return dropId;
+
+    }
+
+    function createAirdropWithDarwin(CreateAirDropParams calldata params, uint256 dropDetailsId) external returns (uint256 dropId) {
+
+        uint amountDarwin;
+
+        if(feeWhitelist[msg.sender] == false) {
+            uint256 ethFees = params.isPromoted ? airdropCreationPriceEth + airdropPromotionPriceEth : airdropCreationPriceEth;
+            amountDarwin = getDarwinAmount(ethFees);
+        }
+
+        dropId = _createAirdrop(params, dropDetailsId, amountDarwin, true);
+        if(amountDarwin > 0) {
+            if(!darwin.transferFrom(msg.sender, address(this), amountDarwin)) revert TokenTransferFailed();
+
+        }
+
+    }
+
+    function _createAirdrop(CreateAirDropParams calldata params, uint256 dropDetailsId, uint256 amountSpent, bool payedWithDarwin) internal returns (uint256) {
         uint256 dropId = lastAirdropId++;
 
-        require(params.endTime >= block.timestamp, "DD::createAirdrop: invalid end date");
+        if(params.endTime < block.timestamp) revert InvalidEndDate();
 
-        require((block.timestamp + maxDelayForAirdropStart) > params.startTime, "DD::createAirdrop: too late start time");
+        if(block.timestamp > params.startTime) revert InvalidStartTime();
 
-        require(params.endTime - params.startTime <= maxAirdropDuration, "DD::createAirdrop: large airdrop duration");
+        if((block.timestamp + maxDelayForAirdropStart) < params.startTime) revert MaxStartTimeExceeded();
 
-        uint256 ethSpent = params.isPromoted ? airdropCreationPriceEth + airdropPromotionPriceEth : airdropCreationPriceEth;
-
-        if noFees[msg.sender] 
-            ethSpent = 0 ; 
-        else
-            require(msg.value >= ethSpent, "DD::createAirdrop: not enough base token sent");
-
-        IERC20(params.airdropTokenAddress).transferFrom(msg.sender, address(this), params.airdropTokenAmount);
+        if(params.endTime - params.startTime > maxAirdropDuration) revert MaxDurationExceeded();
 
         AirDrop memory airDrop = AirDrop({
             id: dropId,
@@ -269,17 +216,71 @@ contract DarwinDrop is Initializable, ContextUpgradeable, OwnableUpgradeable {
             requirementType: params.requirementType
         });
 
-        createAirdropMeta(params, dropId, ethSpent);
+        createAirdropMeta(params, dropId, amountSpent, payedWithDarwin);
 
         airdrops[dropId] = airDrop;
-
-        if ( ethSpent != 0 ) {
-            (bool sent, bytes memory data) = DarwinTeamAddress.call{value: ethSpent}("");
-            require(sent, "Failed to send Ether");
-            }
-
+        
         emit AirDropCreated(airDrop, airdropMeta[dropId], msg.sender, dropId, dropDetailsId);
 
+        if(IERC20(params.airdropTokenAddress).transferFrom(msg.sender, address(this), params.airdropTokenAmount) == false) revert TokenTransferFailed(); 
+
         return dropId;
+    }
+
+    function _transferOut(uint amount, address receiver, bool transferDarwin) internal {
+        if(transferDarwin) {
+            if(darwin.transfer(receiver, amount) == false) revert TokenTransferFailed();
+        } else {
+            (bool success, ) = receiver.call{value: amount}("");
+            if(success == false) revert EthTransferFailed();
+        }
+    }
+
+    // calculate price based on pair reserves
+    function getDarwinAmount(uint amount) public view returns(uint)
+    {
+        if(address(pair) == address(0)) revert PairNotSet();
+
+        (uint Res0, uint Res1,) = pair.getReserves();
+
+        if(pair.token1() != address(darwin)) {
+            (Res0, Res1) = (Res1, Res0);
+        }
+        
+        return((amount*Res1)/Res0); // return amount of darwin is worth inputed amount
+    }
+
+    function setAirdropCreationPriceEth(uint256 _price) external onlyCommunity {
+        airdropCreationPriceEth = _price;
+    }
+
+    function setAirdropPromotionPriceEth(uint256 _price) external onlyCommunity {
+        airdropPromotionPriceEth = _price;
+    }
+
+    function setCommunityAddress(address _CommunityAddress) external onlyCommunity {
+        darwinCommunityAddress = _CommunityAddress;
+    }
+
+    function setMaxDelayForAirdropStart(uint256 _number) external onlyCommunity {
+        maxDelayForAirdropStart = _number;
+    }
+
+    function setMaxAirdropDuration(uint256 _difference) external onlyCommunity {
+        maxAirdropDuration = _difference;
+    }
+
+    function setPool(address _pair) external onlyCommunity {
+        pair = IUniswapV2Pair(_pair);
+    }
+
+    function setFeeWhitelist(address _address, bool _value) external onlyCommunity {
+
+        feeWhitelist[_address] = _value;
+
+    }
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {
+
     }
 }

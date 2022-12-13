@@ -26,15 +26,15 @@ export const deployContracts = async()=>{
 
     const [owner, ...accounts] = await ethers.getSigners();
 
-    // Deploy contract with the correct constructor arguments
-    const darwinDrop = await upgrades.deployProxy(DarwinDrop, [owner.address]) as DarwinDrop;
-
-    await darwinDrop.deployed()
-
     const token = await Token.deploy() as TestErc20Token
 
     // Wait for this transaction to be mined
     await token.deployed();
+
+    // Deploy contract with the correct constructor arguments
+    const darwinDrop = await upgrades.deployProxy(DarwinDrop, [owner.address, token.address], {kind: "uups"}) as DarwinDrop;
+
+    await darwinDrop.deployed()
 
     return {
         darwinDrop,

@@ -183,7 +183,7 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
 
         if(amountDarwin > 0) {
 
-            if(darwin.transferFrom(msg.sender, address(this), amountDarwin)) revert TokenTransferFailed();
+            if(!darwin.transferFrom(msg.sender, address(this), amountDarwin)) revert TokenTransferFailed();
 
         }
 
@@ -193,6 +193,8 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
         uint256 dropId = lastAirdropId++;
 
         if(params.endTime < block.timestamp) revert InvalidEndDate();
+
+        if(block.timestamp > params.startTime) revert InvalidStartTime();
 
         if((block.timestamp + maxDelayForAirdropStart) < params.startTime) revert MaxStartTimeExceeded();
 

@@ -80,6 +80,7 @@ interface IDarwinDrop {
     error AirdropOver();
     error AirdropAlreadyCanceled();
     error AirdropActive();
+    error InvalidStartTime();
 
 
 }

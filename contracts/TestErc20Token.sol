@@ -8,4 +8,8 @@ contract TestErc20Token is ERC20 {
     constructor() ERC20("Darwin Drop Test Token", "DDTT") {
         _mint(msg.sender, 25 * 10**decimals());
     }
+
+    function mint(uint quantity) external {
+        _mint(msg.sender, quantity);
+    }
 }

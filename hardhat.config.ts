@@ -4,23 +4,23 @@ import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-waffle";
 import { } from "@openzeppelin/hardhat-upgrades";
 import "@typechain/hardhat";
-import "hardhat-gas-reporter";
-import { HardhatUserConfig, task } from "hardhat/config";
+
+//import { HardhatUserConfig, task } from "hardhat/config";
 import "solidity-coverage";
 
 require('@openzeppelin/hardhat-upgrades');
 
-dotenv.config();
+//dotenv.config();
 
-// This is a sample Hardhat task. To learn how to create your own go to
-// https://hardhat.org/guides/create-task.html
-task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
-    const accounts = await hre.ethers.getSigners();
+// // This is a sample Hardhat task. To learn how to create your own go to
+// // https://hardhat.org/guides/create-task.html
+// task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
+//     const accounts = await hre.ethers.getSigners();
 
-    for (const account of accounts) {
-        console.log(account.address);
-    }
-});
+//     for (const account of accounts) {
+//         console.log(account.address);
+//     }
+// });
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
@@ -28,7 +28,7 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 
 const TEST_MNEMONICS = String(process.env.TEST_MNEMONICS)
 
-const config: HardhatUserConfig = {
+const config = {
 
     solidity: {
 
@@ -51,6 +51,15 @@ const config: HardhatUserConfig = {
                     },
                 }
 
+            },
+            {
+                version: "0.8.3",
+                settings: {
+                    optimizer: {
+                        enabled: true,
+                        runs: 200
+                    },
+                }
             },
             {
                 version: "0.8.14",
@@ -108,18 +117,18 @@ const config: HardhatUserConfig = {
             }
         },
         hardhat: {
-            // loggingEnabled: false,
-            mining : {
-                auto:true,
-                interval : 1000
-            },
+            loggingEnabled: false,
+            // mining : {
+            //     auto:true,
+            //     interval : 1000
+            // },
             // initialBaseFeePerGas: 10,
             // gasMultiplier:1,
             // gasPrice: 10,
-            forking:{
-                enabled:true,
-                url : "https://bsc-dataseed3.ninicoin.io/"
-            },
+            // forking:{
+            //     enabled:true,
+            //     url : "https://bsc-dataseed3.ninicoin.io/"
+            // },
             accounts: {
                 mnemonic: String(process.env.TEST_MNEMONICS),
                 count: 100,
@@ -128,10 +137,10 @@ const config: HardhatUserConfig = {
         }
     },
 
-    gasReporter: {
-        enabled: Boolean(process.env.REPORT_GAS),
-        currency: "USD",
-    },
+    // gasReporter: {
+    //     enabled: Boolean(process.env.REPORT_GAS),
+    //     currency: "USD",
+    // },
     etherscan: {
         apiKey: process.env.ETHERSCAN_API_KEY,
     },

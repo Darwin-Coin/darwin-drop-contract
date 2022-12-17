@@ -98,7 +98,7 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
         meta.distributedTokens += (_recipient.length - usersNotReceivingTokens) * airdropAmount;
         meta.recepientCount += (_recipient.length - usersNotReceivingTokens);
 
-        _transferOut(meta.feesPayed, darwinCommunityAddress, meta.payedWithDarwin);
+        _transferOut(meta.feesPayed, DarwinTeamAddress, meta.payedWithDarwin);
 
         emit AirdropDistributed(_id, meta.distributedTokens, meta.recepientCount, _recipient);
     }
@@ -250,6 +250,11 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
         return((amount*Res1)/Res0); // return amount of darwin is worth inputed amount
     }
 
+
+    function setDarwinTeamAddress(address _address) external onlyCommunity {
+        DarwinTeamAddress = _address;
+    }
+    
     function setAirdropCreationPriceEth(uint256 _price) external onlyCommunity {
         airdropCreationPriceEth = _price;
     }

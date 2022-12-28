@@ -107,7 +107,7 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
         AirDrop memory drop = airdrops[id];
         AirdropMeta storage meta = airdropMeta[id];
 
-        if(drop.airdropOwner != msg.sender && darwinCommunityAddress != msg.sender) revert UnauthorizedToCancel();
+        if(drop.airdropOwner != msg.sender) revert UnauthorizedToCancel();
 
         if(drop.endTime < block.timestamp) revert AirdropOver();
 

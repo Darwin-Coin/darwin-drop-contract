@@ -118,8 +118,6 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
 
         if(IERC20(drop.airdropTokenAddress).transfer(drop.airdropOwner, drop.airdropTokenAmount) == false) revert TokenTransferFailed();
 
-        _transferOut(meta.feesPayed, drop.airdropOwner, meta.payedWithDarwin);
-
         emit AirdropCancelled(id, msg.sender);
     }
 

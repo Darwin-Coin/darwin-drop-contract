@@ -26,6 +26,7 @@ interface IDarwinDrop {
         address airdropTokenAddress;
         uint256 airdropTokenAmount;
         uint256 tokensPerUser;
+        uint256 creationTime;
         uint256 startTime;
         uint256 endTime;
         uint256 airdropMaxParticipants;

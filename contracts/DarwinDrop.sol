@@ -29,6 +29,8 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
     address public darwinCommunityAddress;
     address public DarwinTeamAddress;
 
+    uint256 public recoverFeesDeadline = 600;
+
     mapping(uint256 => AirDrop) public airdrops;
     mapping(uint256 => AirdropMeta) public airdropMeta;
     mapping(address => bool) public feeWhitelist;
@@ -118,6 +120,11 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
 
         if(IERC20(drop.airdropTokenAddress).transfer(drop.airdropOwner, drop.airdropTokenAmount) == false) revert TokenTransferFailed();
 
+        // Allows creator to recover their paid fees if they created the airdrop less than 10 minutes before cancelling it
+        if(block.timestamp < drop.creationTime + recoverFeesDeadline) {
+            _transferOut(meta.feesPayed, drop.airdropOwner, meta.payedWithDarwin);
+        }
+
         emit AirdropCancelled(id, msg.sender);
     }
 
@@ -205,6 +212,7 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
             airdropTokenAddress: params.airdropTokenAddress,
             airdropTokenAmount: params.airdropTokenAmount,
             tokensPerUser: params.tokensPerUser,
+            creationTime: block.timestamp,
             startTime: params.startTime,
             endTime: params.endTime,
             airdropMaxParticipants: params.airdropMaxParticipants,
@@ -285,5 +293,9 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
 
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {
 
+    }
+
+    function setRecoverFeesDeadline(uint156 _newRecoverFeesDeadline) external onlyOwner {
+        recoverFeesDeadline = _newRecoverFeesDeadline;
     }
 }

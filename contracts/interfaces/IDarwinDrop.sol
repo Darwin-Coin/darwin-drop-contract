@@ -1,3 +1,7 @@
+pragma solidity 0.8.14;
+
+// SPDX-License-Identifier: MIT
+
 interface IDarwinDrop {
 
     enum AirDropType {
@@ -14,7 +18,6 @@ interface IDarwinDrop {
     }
 
     enum AirdropStatus {
-        UNINITIALIZED,
         ACTIVE,
         CANCELLED,
         TOKEN_DISTRIBUTED
@@ -25,8 +28,6 @@ interface IDarwinDrop {
         address airdropOwner;
         address airdropTokenAddress;
         uint256 airdropTokenAmount;
-        uint256 tokensPerUser;
-        uint256 creationTime;
         uint256 startTime;
         uint256 endTime;
         uint256 airdropMaxParticipants;
@@ -37,19 +38,17 @@ interface IDarwinDrop {
     }
 
     struct AirdropMeta {
-        uint256 feesPayed;
+        uint256 ethSpent;
         uint256 distributedTokens;
         uint256 recepientCount;
         uint256 ownerWithdrawnTokens;
         bool isPromoted;
-        bool payedWithDarwin;
         AirdropStatus status;
     }
 
     struct CreateAirDropParams {
         address airdropTokenAddress;
         uint256 airdropTokenAmount;
-        uint256 tokensPerUser;
         uint256 startTime;
         uint256 endTime;
         uint256 airdropMaxParticipants;
@@ -63,7 +62,6 @@ interface IDarwinDrop {
     event AirDropCreated(AirDrop airdrop, AirdropMeta meta, address indexed creatorAddress, uint256 dropId, uint256 dropDetailsId);
     event AirdropCancelled(uint256 id, address canceller);
     event AirdropDistributed(uint256 id, uint256 totalAmount, uint256 totalRecepients, address[] recepients);
-
 
     error AirdropNotActive();
     error AirdropFull();
@@ -82,6 +80,4 @@ interface IDarwinDrop {
     error AirdropAlreadyCanceled();
     error AirdropActive();
     error InvalidStartTime();
-
-
 }

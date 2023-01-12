@@ -215,7 +215,7 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
     }
 
     function _transferOut(uint amount, address receiver) internal {
-        (bool success, ) = receiver.call{value: amount}("");
+        (bool success, ) = payable(receiver).call{value: amount}("");
         if(success == false) revert EthTransferFailed();
     }
 

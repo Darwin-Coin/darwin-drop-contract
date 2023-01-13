@@ -23,7 +23,7 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
 
     address public wallet1;
 
-    uint256 public recoverFeesDeadline = 600;
+    uint256 public recoverFeesDeadline;
 
     mapping(uint256 => AirDrop) public airdrops;
     mapping(uint256 => AirdropMeta) public airdropMeta;
@@ -49,10 +49,12 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
         maxDelayForAirdropStart = 15 days;
         maxAirdropDuration = 20 days;
 
+        recoverFeesDeadline = 600;
+
         darwin = IERC20(_darwin);
 
         // Set wallet1 to receive fees from airdrops
-        wallet1 = 0x0bF1C4139A6168988Fe0d1384296e6df44B27aFd; // 0x46aeeE521b0674b9A1aA155f7A5D8c3187eA7219 (old deployer)
+        wallet1 = 0x0bF1C4139A6168988Fe0d1384296e6df44B27aFd;
         // Whitelist Kieran's wallet from paying fees, for Darwin drops
         setFeeWhitelist(0xe4e672ED86b8f6782e889F125e977bcF54018232, true);
         // Whitelist wallet for BNB drops

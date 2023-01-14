@@ -62,6 +62,7 @@ interface IDarwinDrop {
     event AirDropCreated(AirDrop airdrop, AirdropMeta meta, address indexed creatorAddress, uint256 dropId, uint256 dropDetailsId);
     event AirdropCancelled(uint256 id, address canceller);
     event AirdropDistributed(uint256 id, uint256 totalAmount, uint256 totalRecepients, address[] recepients);
+    event AirdropEnded(uint256 id);
 
     error AirdropNotActive();
     error AirdropFull();
@@ -80,4 +81,5 @@ interface IDarwinDrop {
     error AirdropAlreadyCanceled();
     error AirdropActive();
     error InvalidStartTime();
+    error AirdropHasEndTime();
 }

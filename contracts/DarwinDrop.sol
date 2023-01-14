@@ -19,7 +19,6 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
     uint256 public airdropPromotionPriceEth;
     uint256 public lastAirdropId;
     uint256 public maxDelayForAirdropStart;
-    uint256 public maxAirdropDuration;
 
     address public wallet1;
 
@@ -47,7 +46,6 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
         airdropPromotionPriceEth = 1 ether;
 
         maxDelayForAirdropStart = 15 days;
-        maxAirdropDuration = 20 days;
 
         recoverFeesDeadline = 600;
 
@@ -61,6 +59,16 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
         setFeeWhitelist(0xB997c232019487d49c4b45238401434e8c852cAe, true);
     }
 
+    //end airdrop that has optional endtime
+    function endAirDrop(uint256 _id) external onlyAirdropOwner(_id) {
+        if (airdropMeta[_id].status != AirdropStatus.ACTIVE) revert AirdropNotActive();
+        if (airdrops[_id].endTime != 0) revert AirdropHasEndTime();
+
+        airdrops[_id].endTime = block.timestamp;
+
+        emit AirdropEnded(_id);
+    }
+
     //distribute tokens to participants
     function airDropTokens(address[] calldata _recipient, uint256 _id) external onlyAirdropOwner(_id) {
         AirdropMeta storage meta = airdropMeta[_id];
@@ -71,7 +79,7 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
 
         if(_recipient.length > drop.airdropMaxParticipants) revert AirdropFull();
 
-        if(drop.endTime > block.timestamp) revert AirdropStillInProgress();
+        if(drop.endTime == 0 || drop.endTime > block.timestamp) revert AirdropStillInProgress();
 
         uint256 airdropAmount = drop.airdropTokenAmount / _recipient.length;
 
@@ -113,9 +121,18 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
 
         if(drop.airdropOwner != msg.sender) revert UnauthorizedToCancel();
 
-        if(drop.endTime < block.timestamp) revert AirdropOver();
+        if(drop.endTime != 0 && drop.endTime < block.timestamp) revert AirdropOver();
 
         if(meta.status != AirdropStatus.ACTIVE) revert AirdropAlreadyCanceled();
+
+        _cancelAirdrop(id);
+
+        emit AirdropCancelled(id, msg.sender);
+    }
+
+    function _cancelAirDrop(uint256 id) private {
+        AirDrop memory drop = airdrops[id];
+        AirdropMeta storage meta = airdropMeta[id];
 
         meta.status = AirdropStatus.CANCELLED;
         meta.ownerWithdrawnTokens = drop.airdropTokenAmount;
@@ -126,25 +143,26 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
         if(block.timestamp < creationTime[drop.id] + recoverFeesDeadline) {
             _transferOut(meta.ethSpent, drop.airdropOwner);
         }
-
-        emit AirdropCancelled(id, msg.sender);
     }
 
     function withdrawRemainingTokens(uint256 _id) external onlyAirdropOwner(_id) {
         AirdropMeta storage meta = airdropMeta[_id];
 
-        if(meta.status == AirdropStatus.ACTIVE) revert AirdropActive();
+        if(meta.status == AirdropStatus.CANCELLED) revert AirdropNotActive();
 
-        uint256 remainingTokensAmount = airdrops[_id].airdropTokenAmount - meta.distributedTokens - meta.ownerWithdrawnTokens;
+        if(meta.status == AirdropStatus.ACTIVE) {
+            _cancelAirDrop(_id);
+        } else {
+            uint256 remainingTokensAmount = airdrops[_id].airdropTokenAmount - meta.distributedTokens - meta.ownerWithdrawnTokens;
 
-        meta.ownerWithdrawnTokens += remainingTokensAmount;
+            meta.ownerWithdrawnTokens += remainingTokensAmount;
 
-        IERC20(airdrops[_id].airdropTokenAddress).transfer(msg.sender, remainingTokensAmount);
+            IERC20(airdrops[_id].airdropTokenAddress).transfer(msg.sender, remainingTokensAmount);
+        }
     }
 
 
     function getAirDropDetails(uint256 _id) external view returns (AirDrop memory, AirdropMeta memory) {
-
         return (airdrops[_id], airdropMeta[_id]);
     }
 
@@ -181,13 +199,11 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
     function _createAirdrop(CreateAirDropParams calldata params, uint256 dropDetailsId, uint256 amountSpent) internal returns (uint256) {
         uint256 dropId = lastAirdropId++;
 
-        if(params.endTime < block.timestamp) revert InvalidEndDate();
+        if(params.endTime != 0 && params.endTime <= params.startTime) revert InvalidEndDate();
 
         if(block.timestamp > params.startTime) revert InvalidStartTime();
 
         if((block.timestamp + maxDelayForAirdropStart) < params.startTime) revert MaxStartTimeExceeded();
-
-        if(params.endTime - params.startTime > maxAirdropDuration) revert MaxDurationExceeded();
 
         AirDrop memory airDrop = AirDrop({
             id: dropId,
@@ -235,7 +251,6 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
         return((amount*Res1)/Res0); // return amount of darwin is worth inputed amount
     }
 
-
     function setWallet1(address _address) external onlyOwner {
         wallet1 = _address;
     }
@@ -252,22 +267,15 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
         maxDelayForAirdropStart = _number;
     }
 
-    function setMaxAirdropDuration(uint256 _difference) external onlyOwner {
-        maxAirdropDuration = _difference;
-    }
-
     function setPool(address _pair) external onlyOwner {
         pair = IUniswapV2Pair(_pair);
     }
 
     function setFeeWhitelist(address _address, bool _value) public onlyOwner {
-
         feeWhitelist[_address] = _value;
-
     }
 
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {
-
     }
 
     function setRecoverFeesDeadline(uint256 _newRecoverFeesDeadline) external onlyOwner {

@@ -125,7 +125,7 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
 
         if(meta.status != AirdropStatus.ACTIVE) revert AirdropAlreadyCanceled();
 
-        _cancelAirdrop(id);
+        _cancelAirDrop(id);
 
         emit AirdropCancelled(id, msg.sender);
     }

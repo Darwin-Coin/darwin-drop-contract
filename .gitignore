@@ -4,6 +4,9 @@ coverage
 coverage.json
 typechain
 **/.DS_Store
+.openzeppelin
+.vscode
+remappings.txt
 
 #Hardhat files
 cache

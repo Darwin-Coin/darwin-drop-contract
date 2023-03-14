@@ -30,33 +30,27 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
 
     mapping(uint256 => uint256) public creationTime;
 
-    IUniswapV2Pair pair;
-
-    IERC20 darwin;
-
-    function initialize(address _darwin) public initializer {
+    function initialize(address _wallet1, address _kieran, address _ethDrops) public initializer {
         __Context_init_unchained();
         __Ownable_init_unchained();
-        __DarwinDrop_init_unchained(_darwin);
+        __DarwinDrop_init_unchained(_wallet1, _kieran, _ethDrops);
         __UUPSUpgradeable_init_unchained();
     }
 
-    function __DarwinDrop_init_unchained(address _darwin) private onlyInitializing {
-        airdropCreationPriceEth = 0.1 ether;
-        airdropPromotionPriceEth = 1 ether;
+    function __DarwinDrop_init_unchained(address _wallet1, address _kieran, address _ethDrops) private onlyInitializing {
+        airdropCreationPriceEth = 0.018 ether;
+        airdropPromotionPriceEth = 0.18 ether;
 
         maxDelayForAirdropStart = 15 days;
 
         recoverFeesDeadline = 600;
 
-        darwin = IERC20(_darwin);
-
         // Set wallet1 to receive fees from airdrops
-        wallet1 = 0x0bF1C4139A6168988Fe0d1384296e6df44B27aFd;
+        wallet1 = _wallet1;
         // Whitelist Kieran's wallet from paying fees, for Darwin drops
-        setFeeWhitelist(0xe4e672ED86b8f6782e889F125e977bcF54018232, true);
+        setFeeWhitelist(_kieran, true);
         // Whitelist wallet for BNB drops
-        setFeeWhitelist(0xB997c232019487d49c4b45238401434e8c852cAe, true);
+        setFeeWhitelist(_ethDrops, true);
     }
 
     //end airdrop that has optional endtime
@@ -224,7 +218,7 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
         createAirdropMeta(params, dropId, amountSpent);
 
         airdrops[dropId] = airDrop;
-        
+
         emit AirDropCreated(airDrop, airdropMeta[dropId], msg.sender, dropId, dropDetailsId);
 
         if(IERC20(params.airdropTokenAddress).transferFrom(msg.sender, address(this), params.airdropTokenAmount) == false) revert TokenTransferFailed(); 
@@ -237,24 +231,10 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
         if(success == false) revert EthTransferFailed();
     }
 
-    // calculate price based on pair reserves
-    function getDarwinAmount(uint amount) public view returns(uint)
-    {
-        if(address(pair) == address(0)) revert PairNotSet();
-
-        (uint Res0, uint Res1,) = pair.getReserves();
-
-        if(pair.token1() != address(darwin)) {
-            (Res0, Res1) = (Res1, Res0);
-        }
-        
-        return((amount*Res1)/Res0); // return amount of darwin is worth inputed amount
-    }
-
     function setWallet1(address _address) external onlyOwner {
         wallet1 = _address;
     }
-    
+
     function setAirdropCreationPriceEth(uint256 _price) external onlyOwner {
         airdropCreationPriceEth = _price;
     }
@@ -265,10 +245,6 @@ contract DarwinDrop is IDarwinDrop, UUPSUpgradeable, OwnableUpgradeable {
 
     function setMaxDelayForAirdropStart(uint256 _number) external onlyOwner {
         maxDelayForAirdropStart = _number;
-    }
-
-    function setPool(address _pair) external onlyOwner {
-        pair = IUniswapV2Pair(_pair);
     }
 
     function setFeeWhitelist(address _address, bool _value) public onlyOwner {
